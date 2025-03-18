@@ -2,11 +2,9 @@ import axios from "axios";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import axiosInstance from "../api/axiosInstance";
-import { Button } from "../components/ui/button";
-import { Card, CardContent } from "../components/ui/card";
-import { Input } from "../components/ui/input";
-import { useAuthStore } from "../store/authStore";
+import axiosInstance from "../../api/axiosInstance";
+import { Button, Card, CardContent, Input } from "../../components/ui";
+import { useAuthStore } from "../../store/authStore";
 
 interface LoginForm {
   email: string;
