@@ -1,9 +1,15 @@
-import "./App.css";
-import AppRoutes from "./routes";
+import { useEffect } from "react";
+import { useThemeStore } from "./store";
 import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import AppRoutes from "./routes";
 
 function App() {
+  const { theme } = useThemeStore();
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", theme === "dark");
+  }, [theme]);
+
   return (
     <>
       <AppRoutes />
@@ -17,7 +23,7 @@ function App() {
         pauseOnFocusLoss
         draggable
         pauseOnHover
-        theme="light"
+        theme={theme} // Usar el tema del estado
       />
     </>
   );
