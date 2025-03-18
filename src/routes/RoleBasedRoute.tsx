@@ -2,7 +2,7 @@ import { JSX } from "react";
 import { Navigate } from "react-router-dom";
 import { Role } from "../constants/RolEnum";
 import { useAuthStore } from "../store/authStore";
-import { getHomePageByRole, isValidRole } from "../utils";
+import { isValidRole, getHomePageByRole } from "../utils";
 
 export interface AppRoute {
   path: string;

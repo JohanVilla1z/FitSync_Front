@@ -1,15 +1,26 @@
-import { JSX } from "react";
+import { JSX, Suspense, lazy } from "react";
 import {
   Navigate,
   Route,
   BrowserRouter as Router,
   Routes,
 } from "react-router-dom";
+import Layout from "../components/layout/Layout";
+import LoadingFallback from "../components/ui/LoadingFallBack";
 import { Role } from "../constants/RolEnum";
-import { Dashboard, Login, Profile, Unauthorized } from "../pages";
 import { useAuthStore } from "../store/authStore";
 import { getHomePageByRole, isValidRole } from "../utils";
 import RoleBasedRoute, { AppRoute } from "./RoleBasedRoute";
+
+// Carga diferida de componentes
+const Dashboard = lazy(() => import("../pages/dashboard/Dashboard"));
+const Login = lazy(() => import("../pages/login/Login"));
+const Profile = lazy(() => import("../pages/profile/Profile"));
+const Trainers = lazy(() => import("../pages/trainers/Trainers"));
+const Unauthorized = lazy(() => import("../pages/Unauthorized"));
+const Users = lazy(() => import("../pages/users/Users"));
+// const Admin = lazy(() => import("../pages/Admin"));
+// Cuando crees las páginas Trainers y Admin, agrégalas aquí:
 
 // Componente para rutas protegidas por autenticación
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
@@ -34,53 +45,72 @@ const DefaultRedirect = () => {
 const routes: AppRoute[] = [
   {
     path: "/dashboard",
-    element: <Dashboard />,
+    element: (
+      <Layout>
+        <Dashboard />
+      </Layout>
+    ),
     roles: [Role.ADMIN, Role.TRAINER],
     redirectTo: "/profile",
   },
   {
     path: "/profile",
-    element: <Profile />,
+    element: (
+      <Layout>
+        <Profile />
+      </Layout>
+    ),
     roles: [Role.USER, Role.TRAINER, Role.ADMIN],
   },
-  // Corregir la ruta duplicada - cambiar a /trainers
   {
     path: "/trainers",
-    element: <div>Página de trainers</div>, // Reemplazar con componente real
+    element: (
+      <Layout>
+        <Trainers />
+      </Layout>
+    ), // Reemplazar con componente real cuando esté creado
     roles: [Role.TRAINER, Role.ADMIN],
-    redirectTo: "/unauthorized",
   },
   {
-    path: "/admin",
-    element: <div>Panel de administración</div>, // Reemplazar con componente real
+    path: "/users",
+    element: (
+      <Layout>
+        <Users />
+      </Layout>
+    ), // Reemplazar con componente real cuando esté creado
     roles: [Role.ADMIN],
-    redirectTo: "/unauthorized",
   },
   {
     path: "/unauthorized",
-    element: <Unauthorized />,
+    element: (
+      <Layout>
+        <Unauthorized />
+      </Layout>
+    ),
     roles: [Role.USER, Role.TRAINER, Role.ADMIN],
   },
 ];
 
 const AppRoutes = () => (
   <Router>
-    <Routes>
-      {/* Ruta pública - accesible sin autenticación */}
-      <Route path="/login" element={<Login />} />
+    <Suspense fallback={<LoadingFallback />}>
+      <Routes>
+        {/* Ruta pública - accesible sin autenticación */}
+        <Route path="/login" element={<Login />} />
 
-      {/* Rutas protegidas con control de acceso basado en roles */}
-      {routes.map((route) => (
-        <Route
-          key={route.path}
-          path={route.path}
-          element={<RoleBasedRoute route={route} />}
-        />
-      ))}
+        {/* Rutas protegidas con control de acceso basado en roles */}
+        {routes.map((route) => (
+          <Route
+            key={route.path}
+            path={route.path}
+            element={<RoleBasedRoute route={route} />}
+          />
+        ))}
 
-      {/* Ruta por defecto - redirección inteligente */}
-      <Route path="*" element={<DefaultRedirect />} />
-    </Routes>
+        {/* Ruta por defecto - redirección inteligente */}
+        <Route path="*" element={<DefaultRedirect />} />
+      </Routes>
+    </Suspense>
   </Router>
 );
 
