@@ -1,14 +1,8 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { jwtDecode } from "jwt-decode";
-
-interface AuthState {
-  token: string | null;
-  user: any;
-  isAuthenticated: boolean;
-  login: (token: string) => void;
-  logout: () => void;
-}
+import { AuthState } from "../constants";
+import AuthUser from "../constants/auth/authUser";
 
 export const useAuthStore = create<AuthState>()(
   persist(
@@ -17,7 +11,7 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       isAuthenticated: false,
       login: (token) => {
-        const decoded = jwtDecode(token);
+        const decoded = jwtDecode(token) as AuthUser;
         set({ token, user: decoded, isAuthenticated: true });
       },
       logout: () => {
