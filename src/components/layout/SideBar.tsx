@@ -1,4 +1,12 @@
-import { Home, LogOut, Menu, Users, Dumbbell, UserSearch , X } from "lucide-react";
+import {
+  Home,
+  LogOut,
+  Menu,
+  Users,
+  Dumbbell,
+  UserSearch,
+  X,
+} from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { Role } from "../../constants/RolEnum";
 import { cn } from "../../lib/utils";
@@ -28,7 +36,7 @@ const Sidebar = () => {
       )}
     >
       <nav className="mt-4 ">
-        <div className="flex items-center justify-between p-4 pt-2">
+        <div className="flex items-center justify-between p-4 pb-5 pt-2">
           <button onClick={toggleSidebar} className="text-white">
             {isCollapsed ? <Menu /> : <X />}
           </button>

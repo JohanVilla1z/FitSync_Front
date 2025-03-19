@@ -52,4 +52,24 @@ export default {
   },
   plugins: [], // Remove the tailwindcss-animate plugin
   darkMode: "class", // Habilita el modo oscuro con la clase 'dark'
+  theme: {
+    extend: {
+      colors: {
+        background: "#ffffff", // Fondo claro
+        "background-dark": "#1a202c", // Fondo oscuro
+        foreground: "#1a202c", // Texto claro
+        "foreground-dark": "#ffffff", // Texto oscuro
+        card: "#ffffff", // Fondo de tarjetas claro
+        "card-dark": "#2d3748", // Fondo de tarjetas oscuro
+        primary: {
+          DEFAULT: "#1a202c", // Azul oscuro
+          dark: "#2563eb", // Azul oscuro para tema oscuro
+        },
+        muted: {
+          DEFAULT: "#f1f5f9", // Gris claro
+          dark: "#4a5568", // Gris oscuro
+        },
+      },
+    },
+  },
 };
