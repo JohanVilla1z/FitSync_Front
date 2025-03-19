@@ -1,4 +1,4 @@
-import Navbar from "./Navbar";
+import NavBar from "./NavBar";
 import Sidebar from "./SideBar";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
@@ -6,7 +6,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     <div className="flex h-screen dark:bg-muted-dark dark:text-white">
       <Sidebar />
       <div className="flex flex-col flex-1">
-        <Navbar />
+        <NavBar />
         <main className="flex-1 p-4">{children}</main>
       </div>
     </div>
