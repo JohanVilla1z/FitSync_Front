@@ -31,12 +31,12 @@ const LoadingFallback = ({
     size === "sm" ? "h-8 w-8" : size === "lg" ? "h-16 w-16" : "h-12 w-12";
 
   // Determinar si debe tener fondo con efecto blur
-  const bgClass = overlay ? "bg-background/80 backdrop-blur-sm" : "";
+  const bgClass = overlay ? "bg-background/80 backdrop-blur-sm dark:bg-background-dark/80" : "";
 
   return (
     <div className={`flex justify-center items-center ${height} ${bgClass}`}>
       <div
-        className={`animate-spin rounded-full ${spinnerSize} border-b-2 border-primary`}
+        className={`animate-spin rounded-full ${spinnerSize} border-b-2 border-primary dark:border-primary-dark`}
       ></div>
     </div>
   );
