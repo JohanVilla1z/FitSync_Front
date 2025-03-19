@@ -1,5 +1,6 @@
 export * from "./button";
 export * from "./card";
+export * from "./ConfirmationModal";
 export * from "./EntryLogList";
 export * from "./EntryLogTable";
 export * from "./EquipmentList";
