@@ -15,6 +15,7 @@ import RoleBasedRoute, { AppRoute } from "./RoleBasedRoute";
 // Carga diferida de componentes
 const Dashboard = lazy(() => import("../pages/dashboard/Dashboard"));
 const Login = lazy(() => import("../pages/login/Login"));
+const Register = lazy(() => import("../pages/register/Register"));
 const Profile = lazy(() => import("../pages/profile/Profile"));
 const Trainers = lazy(() => import("../pages/trainers/Trainers"));
 const Unauthorized = lazy(() => import("../pages/Unauthorized"));
@@ -97,6 +98,7 @@ const AppRoutes = () => (
       <Routes>
         {/* Ruta pública - accesible sin autenticación */}
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
         {/* Rutas protegidas con control de acceso basado en roles */}
         {routes.map((route) => (
