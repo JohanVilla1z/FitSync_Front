@@ -19,6 +19,7 @@ const Register = lazy(() => import("../pages/register/Register"));
 const Profile = lazy(() => import("../pages/profile/Profile"));
 const Trainers = lazy(() => import("../pages/trainers/Trainers"));
 const Unauthorized = lazy(() => import("../pages/Unauthorized"));
+const NotFound = lazy(() => import("../pages/NotFound"));
 const Users = lazy(() => import("../pages/users/Users"));
 const Equipment = lazy(() => import("../pages/equipment/Equipment"));
 // const Admin = lazy(() => import("../pages/Admin"));
@@ -119,8 +120,11 @@ const AppRoutes = () => (
           />
         ))}
 
-        {/* Ruta por defecto - redirección inteligente */}
-        <Route path="*" element={<DefaultRedirect />} />
+        {/* Ruta para páginas no autorizadas */}
+        <Route path="/unauthorized" element={<Unauthorized />} />
+
+        {/* Ruta para páginas no encontradas */}
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </Suspense>
   </Router>

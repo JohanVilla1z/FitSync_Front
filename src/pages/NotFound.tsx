@@ -1,11 +1,11 @@
 import { Link } from "react-router-dom";
 
-const Unauthorized = () => {
+const NotFound = () => {
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-background text-foreground dark:bg-background-dark dark:text-foreground-dark">
-      <h1 className="text-6xl font-bold mb-4">403</h1>
+      <h1 className="text-6xl font-bold mb-4">404</h1>
       <p className="text-xl text-muted-foreground dark:text-muted-dark mb-8">
-        No tienes permiso para acceder a esta página.
+        Lo sentimos, la página que buscas no existe.
       </p>
       <Link
         to="/"
@@ -17,4 +17,4 @@ const Unauthorized = () => {
   );
 };
 
-export default Unauthorized;
+export default NotFound;
