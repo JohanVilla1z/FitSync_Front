@@ -20,6 +20,7 @@ const Profile = lazy(() => import("../pages/profile/Profile"));
 const Trainers = lazy(() => import("../pages/trainers/Trainers"));
 const Unauthorized = lazy(() => import("../pages/Unauthorized"));
 const Users = lazy(() => import("../pages/users/Users"));
+const Equipment = lazy(() => import("../pages/equipment/Equipment"));
 // const Admin = lazy(() => import("../pages/Admin"));
 // Cuando crees las páginas Trainers y Admin, agrégalas aquí:
 
@@ -80,6 +81,15 @@ const routes: AppRoute[] = [
       </Layout>
     ), // Reemplazar con componente real cuando esté creado
     roles: [Role.ADMIN],
+  },
+  {
+    path: "/equipment",
+    element: (
+      <Layout>
+        <Equipment />
+      </Layout>
+    ),
+    roles: [Role.ADMIN, Role.TRAINER],
   },
   {
     path: "/unauthorized",
