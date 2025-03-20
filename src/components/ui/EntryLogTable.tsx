@@ -8,17 +8,23 @@ interface EntryLogTableProps {
 const EntryLogTable = ({ isLoading, entryLogs }: EntryLogTableProps) => {
   return (
     <div className="overflow-x-auto">
-      <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-md">
+      <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-md dark:bg-gray-800 dark:border-gray-700">
         <thead>
-          <tr className="bg-gray-100 text-left">
-            <th className="px-4 py-2 border-b">ID</th>
-            <th className="px-4 py-2 border-b">Fecha y Hora</th>
-            <th className="px-4 py-2 border-b">Usuario</th>
-            <th className="px-4 py-2 border-b">Equipos Prestados</th>
-            <th className="px-4 py-2 border-b">Acciones</th>
+          <tr className="bg-gray-100 text-left dark:bg-gray-700 dark:text-white">
+            <th className="px-4 py-2 border-b dark:border-gray-600">ID</th>
+            <th className="px-4 py-2 border-b dark:border-gray-600">
+              Fecha y Hora
+            </th>
+            <th className="px-4 py-2 border-b dark:border-gray-600">Usuario</th>
+            <th className="px-4 py-2 border-b dark:border-gray-600">
+              Equipos Prestados
+            </th>
+            <th className="px-4 py-2 border-b dark:border-gray-600">
+              Acciones
+            </th>
           </tr>
         </thead>
-        <tbody>
+        <tbody className="text-gray-700 dark:text-gray-200">
           {isLoading ? (
             <tr>
               <td colSpan={5} className="text-center py-4">
