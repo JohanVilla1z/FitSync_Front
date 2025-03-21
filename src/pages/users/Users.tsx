@@ -1,7 +1,19 @@
-import React from "react";
+import UserList from "../../components/ui/UserList";
 
 const Users = () => {
-  return <div>users placeholder</div>;
+  return (
+    <>
+      <header className="mb-8">
+        <h1 className="text-3xl font-bold">Usuarios</h1>
+        <p className="text-muted-foreground dark:text-muted-dark">
+          Información de los usuarios
+        </p>
+      </header>
+      <section>
+        <UserList />
+      </section>
+    </>
+  );
 };
 
 export default Users;

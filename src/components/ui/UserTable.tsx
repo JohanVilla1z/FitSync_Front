@@ -1,9 +1,9 @@
-import { Power } from "lucide-react";
-import { useState } from "react";
-import { toast } from "react-toastify";
-import axiosInstance from "../../api/axiosInstance";
-import { User } from "../../constants";
-import ConfirmationModal from "./ConfirmationModal";
+import { Power } from 'lucide-react';
+import { useState } from 'react';
+import { toast } from 'react-toastify';
+import { User } from '../../constants';
+import { useUsersStore } from '../../store';
+import ConfirmationModal from './ConfirmationModal';
 
 interface UserTableProps {
   isLoading: boolean;
@@ -13,6 +13,7 @@ interface UserTableProps {
 const UserTable = ({ isLoading, users }: UserTableProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const toggleUserActivity = useUsersStore((state) => state.toggleUserActivity);
 
   const handleDeactivate = (user: User) => {
     setSelectedUser(user);
@@ -22,25 +23,20 @@ const UserTable = ({ isLoading, users }: UserTableProps) => {
   const confirmDeactivate = async () => {
     if (selectedUser) {
       try {
-        // Realizar la solicitud al endpoint para cambiar el estado de actividad
-        const response = await axiosInstance.put<User>(
-          `/user/${selectedUser.id}/toggle-activity`
-        );
+        // Usar la función del store para cambiar el estado del usuario
+        const updatedUser = await toggleUserActivity(selectedUser.id);
 
         // Mostrar notificación de éxito
         toast.success(
-          `El usuario ${response.data.name} ${
-            response.data.lastName
-          } ahora está ${response.data.isActive ? "activo" : "inactivo"}.`
+          `El usuario ${updatedUser.name} ${updatedUser.lastName} ahora está ${
+            updatedUser.isActive ? 'activo' : 'inactivo'
+          }.`
         );
-
-        // Actualizar el estado de los usuarios si es necesario
-        setSelectedUser(null);
       } catch (error) {
-        console.error("Error al cambiar el estado del usuario:", error);
-        toast.error("Error al cambiar el estado del usuario.");
+        console.error('Error al cambiar el estado del usuario:', error);
+        toast.error('Error al cambiar el estado del usuario.');
       } finally {
-        // Cerrar el modal
+        setSelectedUser(null);
         setIsModalOpen(false);
       }
     }
@@ -94,7 +90,7 @@ const UserTable = ({ isLoading, users }: UserTableProps) => {
                   {user.email}
                 </td>
                 <td className="px-4 py-2 border-b dark:border-gray-600">
-                  {user.phone || "N/A"}
+                  {user.phone || 'N/A'}
                 </td>
                 <td className="px-4 py-2 border-b dark:border-gray-600">
                   {user.weight} kg
@@ -104,11 +100,11 @@ const UserTable = ({ isLoading, users }: UserTableProps) => {
                 </td>
                 <td className="px-4 py-2 border-b dark:border-gray-600">
                   <div className="flex items-center gap-2 justify-between">
-                    <span>{user.isActive ? "Activo" : "Inactivo"}</span>
+                    <span>{user.isActive ? 'Activo' : 'Inactivo'}</span>
                     <button
                       onClick={() => handleDeactivate(user)}
                       className={`h-5 w-5 rounded-full flex align-middle items-center justify-center ${
-                        user.isActive ? "bg-green-500" : "bg-red-500"
+                        user.isActive ? 'bg-green-500' : 'bg-red-500'
                       }`}
                     >
                       <span className="align-middle">
@@ -125,16 +121,17 @@ const UserTable = ({ isLoading, users }: UserTableProps) => {
           )}
         </tbody>
       </table>
+
       {/* Modal de Confirmación */}
       <ConfirmationModal
         isOpen={isModalOpen}
         title={`Confirmar ${
-          selectedUser?.isActive ? "Desactivación" : "Activación"
+          selectedUser?.isActive ? 'Desactivación' : 'Activación'
         }`}
         message={`¿Estás seguro de que deseas ${
-          selectedUser?.isActive ? "desactivar" : "activar"
+          selectedUser?.isActive ? 'desactivar' : 'activar'
         } al usuario ${selectedUser?.name} ${selectedUser?.lastName}?`}
-        confirmText={`${selectedUser?.isActive ? "Desactivar" : "Activar"}`}
+        confirmText={`${selectedUser?.isActive ? 'Desactivar' : 'Activar'}`}
         cancelText="Cancelar"
         onConfirm={confirmDeactivate}
         onCancel={() => setIsModalOpen(false)}
