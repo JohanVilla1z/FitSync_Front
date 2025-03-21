@@ -3,6 +3,7 @@ import { useAuthStore } from '../../store';
 import { useUserProfileStore } from '../../store/useUserProfileStore';
 import { getAvatarByRole } from '../../utils';
 import { getActiveSinceMessage, getGreeting } from '../../utils/timeUtils';
+import { getImcDiagnose } from '../../utils/getImcDiagnose'; // Importar la función
 
 const Profile = () => {
   const { user } = useAuthStore();
@@ -25,6 +26,11 @@ const Profile = () => {
       <p className="text-center text-red-500">No se pudo cargar el perfil.</p>
     );
   }
+
+  // Generar el diagnóstico del IMC
+  const imcDiagnosis = profile.currentIMC
+    ? getImcDiagnose(profile.currentIMC)
+    : 'No se pudo calcular el diagnóstico del IMC.';
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100 dark:bg-gray-900 p-4">
@@ -80,14 +86,23 @@ const Profile = () => {
           </div>
         </div>
 
+        {/* Diagnóstico del IMC */}
+        <div className="mb-6">
+          <p className="text-sm font-medium text-muted dark:text-muted-dark">
+            Diagnóstico del IMC
+          </p>
+          <p className="text-lg text-foreground dark:text-foreground-dark">
+            {imcDiagnosis}
+          </p>
+        </div>
+
         {/* Fecha de Registro */}
         <div className="mb-6">
           <p className="text-sm font-medium text-muted dark:text-muted-dark">
             Fecha de Registro
           </p>
           <p className="text-lg text-foreground dark:text-foreground-dark">
-            {getActiveSinceMessage(profile.registerDate)} (
-            {profile.registerDate})
+            {getActiveSinceMessage(profile.registerDate)} ({profile.registerDate})
           </p>
         </div>
 
