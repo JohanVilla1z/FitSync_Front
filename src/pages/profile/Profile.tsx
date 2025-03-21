@@ -1,7 +1,8 @@
 import { useEffect } from 'react';
 import { useAuthStore } from '../../store';
 import { useUserProfileStore } from '../../store/useUserProfileStore';
-import { getAvatarByRole, getGreeting } from '../../utils';
+import { getAvatarByRole } from '../../utils';
+import { getActiveSinceMessage, getGreeting } from '../../utils/timeUtils';
 
 const Profile = () => {
   const { user } = useAuthStore();
@@ -26,14 +27,14 @@ const Profile = () => {
   }
 
   return (
-    <div className="flex justify-center items-center min-h-screen p-4">
+    <div className="flex justify-center items-center min-h-screen bg-gray-100 dark:bg-gray-900 p-4">
       <div className="w-full max-w-4xl bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
         {/* Encabezado */}
         <div className="flex flex-col items-center mb-6">
           <img
             src={getAvatarByRole(user?.role)}
             alt="Avatar"
-            className="w-40 h-40 rounded-full mb-4 bg-gray-200 dark:bg-gray-700"
+            className="w-56 h-56 rounded-full mb-4 bg-gray-200 dark:bg-gray-700"
           />
           <h1 className="text-3xl font-bold text-foreground dark:text-foreground-dark">
             {getGreeting()}, {profile.name}!
@@ -77,6 +78,17 @@ const Profile = () => {
                 : 'No disponible'}
             </p>
           </div>
+        </div>
+
+        {/* Fecha de Registro */}
+        <div className="mb-6">
+          <p className="text-sm font-medium text-muted dark:text-muted-dark">
+            Fecha de Registro
+          </p>
+          <p className="text-lg text-foreground dark:text-foreground-dark">
+            {getActiveSinceMessage(profile.registerDate)} (
+            {profile.registerDate})
+          </p>
         </div>
 
         {/* Entrenador */}
