@@ -13,7 +13,6 @@ interface UserTableProps {
 const UserTable = ({ isLoading, users }: UserTableProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [userList, setUsers] = useState(users);
 
   const handleDeactivate = (user: User) => {
     setSelectedUser(user);
@@ -36,17 +35,13 @@ const UserTable = ({ isLoading, users }: UserTableProps) => {
         );
 
         // Actualizar el estado de los usuarios si es necesario
-        const updatedUsers = userList.map((user) =>
-          user.id === response.data.id ? response.data : user
-        );
-        setUsers(updatedUsers);
+        setSelectedUser(null);
       } catch (error) {
         console.error("Error al cambiar el estado del usuario:", error);
         toast.error("Error al cambiar el estado del usuario.");
       } finally {
-        // Cerrar el modal y limpiar el usuario seleccionado
+        // Cerrar el modal
         setIsModalOpen(false);
-        setSelectedUser(null);
       }
     }
   };
@@ -77,14 +72,14 @@ const UserTable = ({ isLoading, users }: UserTableProps) => {
                 Cargando...
               </td>
             </tr>
-          ) : userList.length === 0 ? (
+          ) : users.length === 0 ? (
             <tr>
               <td colSpan={8} className="text-center py-4">
                 No hay usuarios disponibles.
               </td>
             </tr>
           ) : (
-            userList.map((user) => (
+            users.map((user) => (
               <tr
                 key={user.id}
                 className="hover:bg-gray-50 dark:hover:bg-gray-700"
