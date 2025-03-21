@@ -1,16 +1,16 @@
-import { LogOut, Moon, Sun } from "lucide-react";
-import { Link } from "react-router-dom";
-import { toast } from "react-toastify";
-import { Role } from "../../constants";
-import { useAuthStore, useThemeStore } from "../../store";
-import { getHomePageByRole } from "../../utils";
+import { LogOut, Moon, Sun } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { Role } from '../../constants';
+import { useAuthStore, useThemeStore } from '../../store';
+import { getAvatarByRole, getHomePageByRole } from '../../utils';
 
 const NavBar = () => {
   const { user, logout } = useAuthStore();
   const { theme, toggleTheme } = useThemeStore();
 
   const handleLogout = () => {
-    toast.info("Sesión cerrada correctamente.");
+    toast.info('Sesión cerrada correctamente.');
     logout();
   };
 
@@ -22,7 +22,7 @@ const NavBar = () => {
         className="flex items-center align-middle gap-2 text-xl font-bold text-primary"
       >
         <img
-          src={"src/assets/logos/fitsync-logo.png"}
+          src={'src/assets/logos/fitsync-logo.png'}
           alt="FitSync"
           className="h-8"
         />
@@ -35,13 +35,13 @@ const NavBar = () => {
           onClick={toggleTheme}
           className="p-2 rounded-lg hover:bg-muted dark:hover:bg-muted-dark"
         >
-          {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
+          {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
         </button>
 
         {/* Avatar - Redirige al perfil */}
         <Link to="/profile">
           <img
-            src={`src/assets/avatars/${user?.role}-avatar.png`}
+            src={getAvatarByRole(user?.role)}
             alt="Avatar"
             className="h-8 w-8 p-0.5 rounded-full dark:bg-white"
           />
