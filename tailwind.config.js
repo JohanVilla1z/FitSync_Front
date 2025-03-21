@@ -1,75 +1,62 @@
-/**@type {import('tailwindcss').Config}*/
+/** @type {import('tailwindcss').Config} */
 export default {
-  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
       colors: {
-        // Paleta de colores principal
-        primary: {
-          DEFAULT: "#1a202c", // Azul oscuro
-          50: "#f8fafc",
-          100: "#f1f5f9",
-          200: "#e2e8f0",
-          300: "#cbd5e1",
-          400: "#94a3b8",
-          500: "#64748b",
-          600: "#475569",
-          700: "#334155",
-          800: "#1e293b",
-          900: "#0f172a",
-          950: "#020617",
-          foreground: "#ffffff",
-        },
-        secondary: {
-          DEFAULT: "#e2e8f0", // Gris claro
-          foreground: "#1a202c",
-        },
-        destructive: {
-          DEFAULT: "#ef4444", // Rojo
-          foreground: "#ffffff",
-        },
+        // Fondo principal
+        background: '#ffffff', // Fondo claro
+        'background-dark': '#1a202c', // Fondo oscuro
+
+        // Texto principal
+        foreground: '#1a202c', // Texto oscuro para tema claro
+        'foreground-dark': '#ffffff', // Texto claro para tema oscuro
+
+        // Texto secundario (muted)
         muted: {
-          DEFAULT: "#f1f5f9", // Gris muy claro
-          foreground: "#64748b",
+          DEFAULT: '#6b7280', // Gris oscuro para tema claro
+          dark: '#9ca3af', // Gris claro para tema oscuro
         },
+
+        // Fondo de tarjetas
+        card: '#ffffff', // Fondo de tarjetas claro
+        'card-dark': '#2d3748', // Fondo de tarjetas oscuro
+
+        // Colores primarios
+        primary: {
+          DEFAULT: '#2563eb', // Azul para tema claro
+          dark: '#3b82f6', // Azul más claro para tema oscuro
+        },
+
+        // Colores secundarios
+        secondary: {
+          DEFAULT: '#e2e8f0', // Gris claro
+          foreground: '#1a202c', // Texto oscuro para tema claro
+        },
+
+        // Colores destructivos (errores)
+        destructive: {
+          DEFAULT: '#ef4444', // Rojo
+          foreground: '#ffffff', // Texto blanco sobre rojo
+        },
+
+        // Colores de acento
         accent: {
-          DEFAULT: "#3b82f6", // Azul
-          foreground: "#ffffff",
+          DEFAULT: '#3b82f6', // Azul
+          foreground: '#ffffff', // Texto blanco sobre azul
         },
-        background: "#ffffff",
-        foreground: "#1a202c",
-        card: "#ffffff",
-        "card-foreground": "#1a202c",
-        border: "#e2e8f0",
-        input: "#e2e8f0",
+
+        // Bordes e inputs
+        border: '#e2e8f0', // Gris claro para bordes
+        input: '#e2e8f0', // Fondo de inputs
       },
       borderRadius: {
-        lg: "0.5rem",
-        md: "0.375rem",
-        sm: "0.25rem",
+        lg: '0.5rem',
+        md: '0.375rem',
+        sm: '0.25rem',
       },
     },
   },
-  plugins: [], // Remove the tailwindcss-animate plugin
-  darkMode: "class", // Habilita el modo oscuro con la clase 'dark'
-  theme: {
-    extend: {
-      colors: {
-        background: "#ffffff", // Fondo claro
-        "background-dark": "#1a202c", // Fondo oscuro
-        foreground: "#1a202c", // Texto claro
-        "foreground-dark": "#ffffff", // Texto oscuro
-        card: "#ffffff", // Fondo de tarjetas claro
-        "card-dark": "#2d3748", // Fondo de tarjetas oscuro
-        primary: {
-          DEFAULT: "#1a202c", // Azul oscuro
-          dark: "#2563eb", // Azul oscuro para tema oscuro
-        },
-        muted: {
-          DEFAULT: "#f1f5f9", // Gris claro
-          dark: "#4a5568", // Gris oscuro
-        },
-      },
-    },
-  },
+  darkMode: 'class', // Habilita el modo oscuro con la clase 'dark'
+  plugins: [],
 };
