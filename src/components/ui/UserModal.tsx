@@ -169,7 +169,6 @@ const UserModal = ({ isOpen, onClose, user }: UserModalProps) => {
                   min: { value: 1, message: 'El peso debe ser mayor a 0' },
                 })}
                 id="weight"
-                type="number"
                 className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
                 placeholder="Peso en kilogramos"
               />
@@ -201,7 +200,6 @@ const UserModal = ({ isOpen, onClose, user }: UserModalProps) => {
                   },
                 })}
                 id="height"
-                type="number"
                 className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
                 placeholder="Altura en metros"
               />
