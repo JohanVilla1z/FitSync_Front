@@ -1,9 +1,10 @@
-import { Power } from 'lucide-react';
+import { Pencil, Power } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { User } from '../../constants';
 import { useUsersStore } from '../../store';
 import ConfirmationModal from './ConfirmationModal';
+import UserModal from './UserModal';
 
 interface UserTableProps {
   isLoading: boolean;
@@ -11,22 +12,22 @@ interface UserTableProps {
 }
 
 const UserTable = ({ isLoading, users }: UserTableProps) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const toggleUserActivity = useUsersStore((state) => state.toggleUserActivity);
 
+  // Abrir el modal de confirmación para activar/desactivar usuario
   const handleDeactivate = (user: User) => {
     setSelectedUser(user);
-    setIsModalOpen(true);
+    setIsConfirmationModalOpen(true);
   };
 
+  // Confirmar activación/desactivación del usuario
   const confirmDeactivate = async () => {
     if (selectedUser) {
       try {
-        // Usar la función del store para cambiar el estado del usuario
         const updatedUser = await toggleUserActivity(selectedUser.id);
-
-        // Mostrar notificación de éxito
         toast.success(
           `El usuario ${updatedUser.name} ${updatedUser.lastName} ahora está ${
             updatedUser.isActive ? 'activo' : 'inactivo'
@@ -37,9 +38,15 @@ const UserTable = ({ isLoading, users }: UserTableProps) => {
         toast.error('Error al cambiar el estado del usuario.');
       } finally {
         setSelectedUser(null);
-        setIsModalOpen(false);
+        setIsConfirmationModalOpen(false);
       }
     }
+  };
+
+  // Abrir el modal de edición de usuario
+  const handleEdit = (user: User) => {
+    setSelectedUser(user);
+    setIsEditModalOpen(true);
   };
 
   return (
@@ -57,6 +64,9 @@ const UserTable = ({ isLoading, users }: UserTableProps) => {
             <th className="px-3 py-2 border-b dark:border-gray-600">Altura</th>
             <th className="px-3 py-2 border-b dark:border-gray-600">
               Fecha Registro
+            </th>
+            <th className="px-3 py-2 border-b dark:border-gray-600">
+              Acciones
             </th>
           </tr>
         </thead>
@@ -97,9 +107,12 @@ const UserTable = ({ isLoading, users }: UserTableProps) => {
                 <td className="px-3 py-2 border-b dark:border-gray-600">
                   {user.height} m
                 </td>
-                <td className="px-4 py-2 border-b dark:border-gray-600">
-                  <div className="flex items-center gap-2 justify-between">
-                    <span>{user.isActive ? 'Activo' : 'Inactivo'}</span>
+                <td className="px-3 py-2 border-b dark:border-gray-600">
+                  {new Date(user.registerDate).toLocaleDateString()}
+                </td>
+                <td className="px-3 py-2 border-b dark:border-gray-600">
+                  <div className="flex items-center gap-2 justify-evenly">
+                    {/* Botón para activar/desactivar */}
                     <button
                       onClick={() => handleDeactivate(user)}
                       className={`h-5 w-5 rounded-full flex align-middle items-center bg-opacity-70 justify-center ${
@@ -110,10 +123,15 @@ const UserTable = ({ isLoading, users }: UserTableProps) => {
                         <Power />
                       </span>
                     </button>
+
+                    {/* Botón para editar */}
+                    <button
+                      className="h-5 w-5 flex align-middle items-center justify-center rounded-full"
+                      onClick={() => handleEdit(user)}
+                    >
+                      <Pencil size={18} />
+                    </button>
                   </div>
-                </td>
-                <td className="px-4 py-2 border-b dark:border-gray-600">
-                  {new Date(user.registerDate).toLocaleDateString()}
                 </td>
               </tr>
             ))
@@ -123,7 +141,7 @@ const UserTable = ({ isLoading, users }: UserTableProps) => {
 
       {/* Modal de Confirmación */}
       <ConfirmationModal
-        isOpen={isModalOpen}
+        isOpen={isConfirmationModalOpen}
         title={`Confirmar ${
           selectedUser?.isActive ? 'Desactivación' : 'Activación'
         }`}
@@ -133,8 +151,20 @@ const UserTable = ({ isLoading, users }: UserTableProps) => {
         confirmText={`${selectedUser?.isActive ? 'Desactivar' : 'Activar'}`}
         cancelText="Cancelar"
         onConfirm={confirmDeactivate}
-        onCancel={() => setIsModalOpen(false)}
+        onCancel={() => setIsConfirmationModalOpen(false)}
       />
+
+      {/* Modal para editar usuario */}
+      {isEditModalOpen && (
+        <UserModal
+          isOpen={isEditModalOpen}
+          onClose={() => {
+            setIsEditModalOpen(false);
+            setSelectedUser(null);
+          }}
+          user={selectedUser ?? undefined}
+        />
+      )}
     </div>
   );
 };
