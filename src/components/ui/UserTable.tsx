@@ -47,16 +47,15 @@ const UserTable = ({ isLoading, users }: UserTableProps) => {
       <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-md dark:bg-gray-800 dark:border-gray-700">
         <thead>
           <tr className="bg-gray-100 dark:bg-gray-700 text-left">
-            <th className="px-4 py-2 border-b dark:border-gray-600">ID</th>
-            <th className="px-4 py-2 border-b dark:border-gray-600">Nombre</th>
-            <th className="px-4 py-2 border-b dark:border-gray-600">Email</th>
-            <th className="px-4 py-2 border-b dark:border-gray-600">
+            <th className="px-3 py-2 border-b dark:border-gray-600">ID</th>
+            <th className="px-3 py-2 border-b dark:border-gray-600">Nombre</th>
+            <th className="px-3 py-2 border-b dark:border-gray-600">Email</th>
+            <th className="px-3 py-2 border-b dark:border-gray-600">
               Teléfono
             </th>
-            <th className="px-4 py-2 border-b dark:border-gray-600">Peso</th>
-            <th className="px-4 py-2 border-b dark:border-gray-600">Altura</th>
-            <th className="px-4 py-2 border-b dark:border-gray-600">Activo</th>
-            <th className="px-4 py-2 border-b dark:border-gray-600">
+            <th className="px-3 py-2 border-b dark:border-gray-600">Peso</th>
+            <th className="px-3 py-2 border-b dark:border-gray-600">Altura</th>
+            <th className="px-3 py-2 border-b dark:border-gray-600">
               Fecha Registro
             </th>
           </tr>
@@ -80,22 +79,22 @@ const UserTable = ({ isLoading, users }: UserTableProps) => {
                 key={user.id}
                 className="hover:bg-gray-50 dark:hover:bg-gray-700"
               >
-                <td className="px-4 py-2 border-b dark:border-gray-600">
+                <td className="px-3 py-2 border-b dark:border-gray-600">
                   {user.id}
                 </td>
-                <td className="px-4 py-2 border-b dark:border-gray-600">
+                <td className="px-3 py-2 border-b dark:border-gray-600">
                   {user.name} {user.lastName}
                 </td>
-                <td className="px-4 py-2 border-b dark:border-gray-600">
+                <td className="px-3 py-2 border-b dark:border-gray-600">
                   {user.email}
                 </td>
-                <td className="px-4 py-2 border-b dark:border-gray-600">
+                <td className="px-3 py-2 border-b dark:border-gray-600">
                   {user.phone || 'N/A'}
                 </td>
-                <td className="px-4 py-2 border-b dark:border-gray-600">
+                <td className="px-3 py-2 border-b dark:border-gray-600">
                   {user.weight} kg
                 </td>
-                <td className="px-4 py-2 border-b dark:border-gray-600">
+                <td className="px-3 py-2 border-b dark:border-gray-600">
                   {user.height} m
                 </td>
                 <td className="px-4 py-2 border-b dark:border-gray-600">
@@ -103,7 +102,7 @@ const UserTable = ({ isLoading, users }: UserTableProps) => {
                     <span>{user.isActive ? 'Activo' : 'Inactivo'}</span>
                     <button
                       onClick={() => handleDeactivate(user)}
-                      className={`h-5 w-5 rounded-full flex align-middle items-center justify-center ${
+                      className={`h-5 w-5 rounded-full flex align-middle items-center bg-opacity-70 justify-center ${
                         user.isActive ? 'bg-green-500' : 'bg-red-500'
                       }`}
                     >
