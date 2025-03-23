@@ -121,7 +121,30 @@ export const useUsersStore = create<UserState>()(
           ),
         }));
       },
+      // Actualizar un usuario existente
+      updateUser: async (updatedUser: User) => {
+        try {
+          const response = await axiosInstance.put<User>(
+            `/user/${updatedUser.id}`,
+            updatedUser
+          );
 
+          // Actualizar el usuario en el estado
+          set((state) => ({
+            users: state.users.map((user) =>
+              user.id === updatedUser.id ? response.data : user
+            ),
+            filteredUsers: state.filteredUsers.map((user) =>
+              user.id === updatedUser.id ? response.data : user
+            ),
+          }));
+
+          return response.data;
+        } catch (error) {
+          console.error('Error al actualizar el usuario:', error);
+          throw error;
+        }
+      },
       // Limpiar usuarios (útil para logout)
       clearUsers: () =>
         set({ users: [], filteredUsers: [], lastFetched: null }),
