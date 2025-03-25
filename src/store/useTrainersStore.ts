@@ -35,7 +35,7 @@ export const useTrainersStore = create<TrainerState>()(
       fetchTrainers: async () => {
         set({ isLoading: true, error: null });
         try {
-          const response = await axiosInstance.get<Trainer[]>('/trainer/all');
+          const response = await axiosInstance.get<Trainer[]>('/trainer');
           set({
             trainers: response.data,
             filteredTrainers: response.data,
@@ -86,14 +86,14 @@ export const useTrainersStore = create<TrainerState>()(
         }
       },
 
-      // Cambiar estado de actividad del entrenador
       toggleTrainerActivity: async (trainerId) => {
         try {
+          // Realizar la solicitud al endpoint para alternar el estado del entrenador
           const response = await axiosInstance.put<Trainer>(
-            `/trainer/${trainerId}/toggle-activity`
+            `/trainer/${trainerId}/toggle-status`
           );
 
-          // Actualizar el entrenador en el estado
+          // Actualizar el entrenador en el estado global
           set((state) => ({
             trainers: state.trainers.map((trainer) =>
               trainer.id === trainerId ? response.data : trainer
@@ -103,10 +103,10 @@ export const useTrainersStore = create<TrainerState>()(
             ),
           }));
 
-          return response.data;
+          return response.data; // Devolver el entrenador actualizado
         } catch (error) {
-          console.error('Error toggling trainer activity:', error);
-          throw error;
+          console.error('Error al alternar el estado del entrenador:', error);
+          throw error; // Lanzar el error para manejarlo en el componente
         }
       },
 
