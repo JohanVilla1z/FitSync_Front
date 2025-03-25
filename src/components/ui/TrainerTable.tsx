@@ -1,10 +1,10 @@
-import { Power } from 'lucide-react'; // Importar el ícono Power
+import { Power } from 'lucide-react';
 import { useState } from 'react';
-import { Trainer } from '../../constants';
-import TrainerModal from './TrainerModal';
 import { toast } from 'react-toastify';
-import ConfirmationModal from './ConfirmationModal';
+import { Trainer } from '../../constants';
 import { useTrainersStore } from '../../store/useTrainersStore';
+import ConfirmationModal from './ConfirmationModal';
+import TrainerModal from './TrainerModal';
 
 interface TrainerTableProps {
   isLoading: boolean;
@@ -34,7 +34,7 @@ const TrainerTable = ({ isLoading, trainers }: TrainerTableProps) => {
       try {
         const updatedTrainer = await toggleTrainerActivity(selectedTrainer.id);
         toast.success(
-          `El entrenador ${updatedTrainer.name} ahora está ${
+          `El entrenador "${updatedTrainer.name}" ahora está ${
             updatedTrainer.active ? 'activo' : 'inactivo'
           }.`
         );
@@ -45,6 +45,8 @@ const TrainerTable = ({ isLoading, trainers }: TrainerTableProps) => {
         setSelectedTrainer(null);
         setIsConfirmationModalOpen(false);
       }
+    } else {
+      toast.error('No se pudo identificar al entrenador.');
     }
   };
 
@@ -125,14 +127,19 @@ const TrainerTable = ({ isLoading, trainers }: TrainerTableProps) => {
       {/* Modal de Confirmación */}
       <ConfirmationModal
         isOpen={isConfirmationModalOpen}
-        title={`Confirmar ${selectedTrainer?.active ? 'Desactivación' : 'Activación'}`}
+        title={`Confirmar ${
+          selectedTrainer?.active ? 'Desactivación' : 'Activación'
+        }`}
         message={`¿Estás seguro de que deseas ${
           selectedTrainer?.active ? 'desactivar' : 'activar'
         } al entrenador ${selectedTrainer?.name}?`}
         confirmText={`${selectedTrainer?.active ? 'Desactivar' : 'Activar'}`}
         cancelText="Cancelar"
         onConfirm={confirmToggleActivity}
-        onCancel={() => setIsConfirmationModalOpen(false)}
+        onCancel={() => {
+          setSelectedTrainer(null);
+          setIsConfirmationModalOpen(false);
+        }}
       />
 
       {/* Modal para ver detalles */}

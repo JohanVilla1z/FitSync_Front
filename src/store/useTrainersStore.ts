@@ -18,6 +18,7 @@ interface TrainerState {
   setSearchQuery: (query: string) => void;
   createTrainer: (trainerData: Omit<Trainer, 'id'>) => Promise<Trainer>;
   updateTrainerInStore: (updatedTrainer: Trainer) => void;
+  updateTrainer: (updatedTrainer: Trainer) => Promise<Trainer>;
   clearTrainers: () => void;
 }
 
@@ -87,26 +88,49 @@ export const useTrainersStore = create<TrainerState>()(
       },
 
       toggleTrainerActivity: async (trainerId) => {
+        const { trainers } = get();
+        const trainer = trainers.find((t) => t.id === trainerId);
+
+        if (!trainer) {
+          throw new Error('Entrenador no encontrado');
+        }
+
+        // Actualización optimista
+        const previousState = [...trainers];
+        const updatedTrainer = { ...trainer, active: !trainer.active };
+
+        set((state) => ({
+          trainers: state.trainers.map((t) =>
+            t.id === trainerId ? updatedTrainer : t
+          ),
+          filteredTrainers: state.filteredTrainers.map((t) =>
+            t.id === trainerId ? updatedTrainer : t
+          ),
+        }));
+
         try {
-          // Realizar la solicitud al endpoint para alternar el estado del entrenador
+          // Solicitud al backend
           const response = await axiosInstance.put<Trainer>(
             `/trainer/${trainerId}/toggle-status`
           );
 
-          // Actualizar el entrenador en el estado global
+          // Actualizar el estado con la respuesta del backend
           set((state) => ({
-            trainers: state.trainers.map((trainer) =>
-              trainer.id === trainerId ? response.data : trainer
+            trainers: state.trainers.map((t) =>
+              t.id === trainerId ? response.data : t
             ),
-            filteredTrainers: state.filteredTrainers.map((trainer) =>
-              trainer.id === trainerId ? response.data : trainer
+            filteredTrainers: state.filteredTrainers.map((t) =>
+              t.id === trainerId ? response.data : t
             ),
           }));
 
-          return response.data; // Devolver el entrenador actualizado
+          return response.data;
         } catch (error) {
           console.error('Error al alternar el estado del entrenador:', error);
-          throw error; // Lanzar el error para manejarlo en el componente
+
+          // Revertir el cambio en caso de error
+          set({ trainers: previousState, filteredTrainers: previousState });
+          throw error;
         }
       },
 
@@ -140,6 +164,30 @@ export const useTrainersStore = create<TrainerState>()(
             trainer.id === updatedTrainer.id ? updatedTrainer : trainer
           ),
         }));
+      },
+
+      updateTrainer: async (updatedTrainer: Trainer) => {
+        try {
+          const response = await axiosInstance.put<Trainer>(
+            `/trainer/${updatedTrainer.id}`,
+            updatedTrainer
+          );
+
+          // Actualizar el entrenador en el estado global
+          set((state) => ({
+            trainers: state.trainers.map((trainer) =>
+              trainer.id === updatedTrainer.id ? response.data : trainer
+            ),
+            filteredTrainers: state.filteredTrainers.map((trainer) =>
+              trainer.id === updatedTrainer.id ? response.data : trainer
+            ),
+          }));
+
+          return response.data; // Devolver el entrenador actualizado
+        } catch (error) {
+          console.error('Error al actualizar el entrenador:', error);
+          throw error; // Lanzar el error para manejarlo en el componente
+        }
       },
 
       // Limpiar trainers
