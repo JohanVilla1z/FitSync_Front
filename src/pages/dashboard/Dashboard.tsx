@@ -1,4 +1,4 @@
-import EntryLogList from "../../components/ui/EntryLogList";
+import EntryLogList from '../../components/ui/EntryLogList';
 
 function Dashboard() {
   return (
