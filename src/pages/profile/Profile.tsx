@@ -33,8 +33,11 @@ const Profile = () => {
     : 'No se pudo calcular el diagnóstico del IMC.';
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100 dark:bg-gray-900 p-4">
-      <div className="w-full max-w-4xl bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+    <section
+      className="w-full max-w-4xl bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6"
+      role="region"
+      aria-labelledby="profile-header"
+    >
         {/* Encabezado */}
         <div className="flex flex-col items-center mb-6">
           <img
@@ -107,22 +110,36 @@ const Profile = () => {
         </div>
 
         {/* Entrenador */}
-        <div className="mb-6">
+      <section className="mb-6">
+        <h2 className="text-2xl font-semibold text-foreground dark:text-foreground-dark">
+          Entrenador
+        </h2>
+        {profile.trainerName ? (
+          <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <li>
+              <p className="text-sm font-medium text-muted dark:text-muted-dark">
+                Nombre
+              </p>
+              <p className="text-lg text-foreground dark:text-foreground-dark">
+                {profile.trainerName || 'No disponible'}
+              </p>
+            </li>
+            <li>
           <p className="text-sm font-medium text-muted dark:text-muted-dark">
-            Entrenador
+                Correo Electrónico
           </p>
-          {profile.trainerName ? (
             <p className="text-lg text-foreground dark:text-foreground-dark">
-              {profile.trainerName}
+                {profile.trainerEmail || 'No disponible'}
             </p>
+            </li>
+          </ul>
           ) : (
             <p className="text-lg text-red-500">
-              Aun no tienes un entrenador asignado.
+            Aún no tienes un entrenador asignado.
             </p>
           )}
-        </div>
-      </div>
-    </div>
+      </section>
+    </section>
   );
 };
 
