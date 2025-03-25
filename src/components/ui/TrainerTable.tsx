@@ -1,4 +1,4 @@
-import { Power } from 'lucide-react';
+import { Pencil, Power } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { Trainer } from '../../constants';
@@ -19,7 +19,7 @@ const TrainerTable = ({ isLoading, trainers }: TrainerTableProps) => {
     (state) => state.toggleTrainerActivity
   );
 
-  const handleViewDetails = (trainer: Trainer) => {
+  const handleEdit = (trainer: Trainer) => {
     setSelectedTrainer(trainer);
     setIsModalOpen(true);
   };
@@ -109,12 +109,12 @@ const TrainerTable = ({ isLoading, trainers }: TrainerTableProps) => {
                       </span>
                     </button>
 
-                    {/* Botón para ver detalles */}
+                    {/* Botón para editar */}
                     <button
-                      onClick={() => handleViewDetails(trainer)}
-                      className="px-3 py-1 text-sm text-white bg-blue-500 rounded hover:bg-blue-600"
+                      onClick={() => handleEdit(trainer)}
+                      className="h-5 w-5 flex align-middle items-center justify-center rounded-full"
                     >
-                      Ver Detalles
+                      <Pencil size={18} />
                     </button>
                   </div>
                 </td>
