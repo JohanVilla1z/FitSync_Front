@@ -13,7 +13,7 @@ interface TrainerModalProps {
 
 const TrainerModal = ({ isOpen, onClose, trainer }: TrainerModalProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { updateTrainer } = useTrainersStore();
+  const { createTrainer, updateTrainer } = useTrainersStore();
 
   const {
     register,
@@ -34,8 +34,13 @@ const TrainerModal = ({ isOpen, onClose, trainer }: TrainerModalProps) => {
     setIsSubmitting(true);
     try {
       if (trainer) {
+        // Editar entrenador existente
         await updateTrainer(data);
-        toast.success(`Entrenador ${data.name} actualizado exitosamente`);
+        toast.success(`Entrenador "${data.name}" actualizado exitosamente`);
+      } else {
+        // Crear nuevo entrenador
+        await createTrainer(data);
+        toast.success(`Entrenador "${data.name}" creado exitosamente`);
       }
       reset();
       onClose();
@@ -106,6 +111,32 @@ const TrainerModal = ({ isOpen, onClose, trainer }: TrainerModalProps) => {
               </p>
             )}
           </div>
+
+          {/* Contraseña */}
+          {!trainer && (
+            <div>
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium mb-1"
+              >
+                Contraseña
+              </label>
+              <input
+                {...register('password', {
+                  required: 'La contraseña es obligatoria',
+                })}
+                id="password"
+                type="password"
+                className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
+                placeholder="Contraseña"
+              />
+              {errors.password && (
+                <p className="text-sm text-red-600 mt-1">
+                  {errors.password.message}
+                </p>
+              )}
+            </div>
+          )}
 
           {/* Activo */}
           <div>
