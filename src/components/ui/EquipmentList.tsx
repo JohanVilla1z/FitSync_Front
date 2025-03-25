@@ -1,32 +1,49 @@
-import { useEffect, useState } from "react";
-import axiosInstance from "../../api/axiosInstance";
-import { Equipment } from "../../constants/equipment";
-import EquipmentTable from "./EquipmentTable";
+import { useEffect, useState } from 'react';
+import { useEquipmentStore } from '../../store/useEquipmentStore';
+import EquipmentModal from './EquipmentModal';
+import EquipmentTable from './EquipmentTable';
 
 const EquipmentList = () => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [equipment, setEquipment] = useState<Equipment[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const { equipment, isLoading, fetchEquipment } = useEquipmentStore();
 
   useEffect(() => {
-    const fetchEquipment = async () => {
-      try {
-        setIsLoading(true);
-        const response = await axiosInstance.get<Equipment[]>("/equipment");
-        setEquipment(response.data);
-      } catch (error) {
-        console.error("Error fetching equipment:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchEquipment();
-  }, []);
+  }, [fetchEquipment]);
+
+  const filteredEquipment = equipment.filter(
+    (item) =>
+      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.description.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div>
-      <h2 className="text-xl font-semibold mb-4">Lista de Equipos</h2>
-      <EquipmentTable isLoading={isLoading} equipment={equipment} />
+      <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <h2 className="text-xl font-semibold">Lista de Equipos</h2>
+        <div className="flex gap-4">
+          <input
+            type="text"
+            placeholder="Buscar equipo..."
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="p-2 border rounded-md w-full sm:w-64 dark:bg-gray-800 dark:border-gray-700"
+          />
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          >
+            Crear Equipo
+          </button>
+        </div>
+      </div>
+      <EquipmentTable isLoading={isLoading} equipment={filteredEquipment} />
+      {isModalOpen && (
+        <EquipmentModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+        />
+      )}
     </div>
   );
 };

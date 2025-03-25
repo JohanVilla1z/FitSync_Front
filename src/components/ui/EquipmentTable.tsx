@@ -1,4 +1,7 @@
-import { Equipment } from "../../constants/equipment";
+import { Pencil } from 'lucide-react';
+import { useState } from 'react';
+import { Equipment } from '../../constants/equipment';
+import EquipmentModal from './EquipmentModal';
 
 interface EquipmentTableProps {
   isLoading: boolean;
@@ -6,6 +9,16 @@ interface EquipmentTableProps {
 }
 
 const EquipmentTable = ({ isLoading, equipment }: EquipmentTableProps) => {
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedEquipment, setSelectedEquipment] = useState<Equipment | null>(
+    null
+  );
+
+  const handleEdit = (item: Equipment) => {
+    setSelectedEquipment(item);
+    setIsEditModalOpen(true);
+  };
+
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-md dark:bg-gray-800 dark:border-gray-700">
@@ -22,18 +35,21 @@ const EquipmentTable = ({ isLoading, equipment }: EquipmentTableProps) => {
             <th className="px-4 py-2 border-b dark:border-gray-600">
               Préstamos Actuales
             </th>
+            <th className="px-4 py-2 border-b dark:border-gray-600">
+              Acciones
+            </th>
           </tr>
         </thead>
         <tbody>
           {isLoading ? (
             <tr>
-              <td colSpan={5} className="text-center py-4">
+              <td colSpan={6} className="text-center py-4">
                 Cargando...
               </td>
             </tr>
           ) : equipment.length === 0 ? (
             <tr>
-              <td colSpan={5} className="text-center py-4">
+              <td colSpan={6} className="text-center py-4">
                 No hay equipos disponibles.
               </td>
             </tr>
@@ -54,10 +70,10 @@ const EquipmentTable = ({ isLoading, equipment }: EquipmentTableProps) => {
                 </td>
                 <td className="px-4 py-2 border-b dark:border-gray-600">
                   <div className="flex items-center justify-evenly">
-                    <span>{item.available ? "Sí" : "No"}</span>
+                    <span>{item.available ? 'Sí' : 'No'}</span>
                     <span
                       className={`ml-2 h-3 w-3 rounded-full ${
-                        item.available ? "bg-green-500" : "bg-red-500"
+                        item.available ? 'bg-green-500' : 'bg-red-500'
                       }`}
                     ></span>
                   </div>
@@ -65,11 +81,28 @@ const EquipmentTable = ({ isLoading, equipment }: EquipmentTableProps) => {
                 <td className="px-4 py-2 border-b dark:border-gray-600">
                   {item.currentLoans}
                 </td>
+                <td className="px-4 py-2 border-b dark:border-gray-600">
+                  <button onClick={() => handleEdit(item)}>
+                    <Pencil size={18} />
+                  </button>
+                </td>
               </tr>
             ))
           )}
         </tbody>
       </table>
+
+      {/* Modal para editar equipo */}
+      {isEditModalOpen && (
+        <EquipmentModal
+          isOpen={isEditModalOpen}
+          onClose={() => {
+            setIsEditModalOpen(false);
+            setSelectedEquipment(null);
+          }}
+          equipment={selectedEquipment ?? undefined}
+        />
+      )}
     </div>
   );
 };
