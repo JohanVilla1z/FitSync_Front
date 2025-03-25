@@ -1,4 +1,4 @@
-import { EntryLog } from "../../constants/entryLog";
+import { EntryLog } from '../../constants/entryLog';
 
 interface EntryLogTableProps {
   isLoading: boolean;
@@ -10,7 +10,7 @@ const EntryLogTable = ({ isLoading, entryLogs }: EntryLogTableProps) => {
     <div className="overflow-x-auto">
       <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-md dark:bg-gray-800 dark:border-gray-700">
         <thead>
-          <tr className="bg-gray-100 text-left dark:bg-gray-700 dark:text-white">
+          <tr className="bg-gray-100 dark:bg-gray-700 text-left">
             <th className="px-4 py-2 border-b dark:border-gray-600">ID</th>
             <th className="px-4 py-2 border-b dark:border-gray-600">
               Fecha y Hora
@@ -39,7 +39,10 @@ const EntryLogTable = ({ isLoading, entryLogs }: EntryLogTableProps) => {
             </tr>
           ) : (
             entryLogs.map((log) => (
-              <tr key={log.logId} className="hover:bg-gray-50">
+              <tr
+                key={log.logId}
+                className="hover:bg-gray-50 dark:hover:bg-gray-700"
+              >
                 <td className="px-4 py-2 border-b">{log.logId}</td>
                 <td className="px-4 py-2 border-b">
                   {new Date(log.timestamp).toLocaleString()}
@@ -47,8 +50,8 @@ const EntryLogTable = ({ isLoading, entryLogs }: EntryLogTableProps) => {
                 <td className="px-4 py-2 border-b">{log.userName}</td>
                 <td className="px-4 py-2 border-b">
                   {log.borrowedEquipment.length > 0
-                    ? log.borrowedEquipment.join(", ")
-                    : "Ninguno"}
+                    ? log.borrowedEquipment.join(', ')
+                    : 'Ninguno'}
                 </td>
                 <td className="px-4 py-2 border-b">
                   {log.editable ? (
