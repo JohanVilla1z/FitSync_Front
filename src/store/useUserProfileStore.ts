@@ -13,6 +13,7 @@ interface UserProfile {
   registerDate: string;
   currentIMC: number | null;
   trainerName: string | null;
+  trainerEmail: string | null;
 }
 
 interface UserProfileState {
