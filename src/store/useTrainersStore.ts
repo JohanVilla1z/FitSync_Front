@@ -17,7 +17,6 @@ interface TrainerState {
   toggleTrainerActivity: (trainerId: number) => Promise<Trainer>;
   setSearchQuery: (query: string) => void;
   createTrainer: (trainerData: Omit<Trainer, 'id'>) => Promise<Trainer>;
-  updateTrainerInStore: (updatedTrainer: Trainer) => void;
   updateTrainer: (updatedTrainer: Trainer) => Promise<Trainer>;
   clearTrainers: () => void;
 }
@@ -154,36 +153,24 @@ export const useTrainersStore = create<TrainerState>()(
         });
       },
 
-      // Actualizar un entrenador específico en el store
-      updateTrainerInStore: (updatedTrainer) => {
-        set((state) => ({
-          trainers: state.trainers.map((trainer) =>
-            trainer.id === updatedTrainer.id ? updatedTrainer : trainer
-          ),
-          filteredTrainers: state.filteredTrainers.map((trainer) =>
-            trainer.id === updatedTrainer.id ? updatedTrainer : trainer
-          ),
-        }));
-      },
-
       updateTrainer: async (updatedTrainer: Trainer) => {
         try {
-          const response = await axiosInstance.put<Trainer>(
+          // Realizar la solicitud al backend para actualizar el entrenador
+          await axiosInstance.put<Trainer>(
             `/trainer/${updatedTrainer.id}`,
             updatedTrainer
           );
 
-          // Actualizar el entrenador en el estado global
-          set((state) => ({
-            trainers: state.trainers.map((trainer) =>
-              trainer.id === updatedTrainer.id ? response.data : trainer
-            ),
-            filteredTrainers: state.filteredTrainers.map((trainer) =>
-              trainer.id === updatedTrainer.id ? response.data : trainer
-            ),
-          }));
+          // Realizar un refetch completo de los entrenadores
+          const response = await axiosInstance.get<Trainer[]>('/trainer');
 
-          return response.data; // Devolver el entrenador actualizado
+          // Actualizar el estado global con los datos más recientes
+          set({
+            trainers: response.data,
+            filteredTrainers: response.data,
+          });
+
+          return updatedTrainer; // Devolver el entrenador actualizado
         } catch (error) {
           console.error('Error al actualizar el entrenador:', error);
           throw error; // Lanzar el error para manejarlo en el componente
