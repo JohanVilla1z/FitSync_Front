@@ -2,7 +2,9 @@ import { X } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
-import { User } from '../../constants/User';
+import { User } from '../../constants';
+import RegisterForm from '../../constants/auth/registerForm';
+import { registerUser } from '../../services/authService';
 import { useUsersStore } from '../../store';
 
 interface UserModalProps {
@@ -11,41 +13,72 @@ interface UserModalProps {
   user?: User; // Si se pasa un usuario, es para editar; si no, es para crear
 }
 
+interface ExtendedUser extends User {
+  password?: string; // Contraseña solo para creación
+  confirmPassword?: string; // Confirmación de contraseña solo para creación
+}
+
 const UserModal = ({ isOpen, onClose, user }: UserModalProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { updateUserInStore } = useUsersStore();
+  const { updateUser } = useUsersStore();
 
   const {
     register,
     handleSubmit,
     reset,
+    watch,
     formState: { errors },
-  } = useForm<User>({
+  } = useForm<ExtendedUser>({
     defaultValues: user || {
       name: '',
       lastName: '',
       email: '',
-      phone: null,
+      phone: '',
       weight: 0,
       height: 0,
       isActive: true,
-      registerDate: new Date().toISOString(),
-      currentIMC: null,
-      trainerName: null,
     },
   });
 
-  const onSubmit = async (data: User) => {
+  const password = watch('password'); // Observar el campo de contraseña para validación
+
+  const onSubmit = async (data: ExtendedUser) => {
     setIsSubmitting(true);
     try {
-      await updateUserInStore(data);
-      toast.success(`Usuario ${data.name} actualizado exitosamente`);
+      if (user) {
+        // Editar usuario existente
+        await updateUser(data);
+        toast.success(
+          `Usuario "${data.name} ${data.lastName}" actualizado exitosamente`
+        );
+      } else {
+        // Crear nuevo usuario
+        const { confirmPassword, isActive, phone, height, weight, ...rest } =
+          data;
+
+        // Transformar los datos para que coincidan con RegisterForm
+        const newUserData: RegisterForm = {
+          ...rest,
+          password: data.password || '', // Asegurarse de que la contraseña esté presente
+          userHeight: height || 0, // Mapear height a userHeight
+          userWeight: weight || 0, // Mapear weight a userWeight
+        };
+
+        await registerUser(newUserData); // Usar el servicio de registro
+        toast.success(
+          `Usuario "${data.name} ${data.lastName}" creado exitosamente`
+        );
+      }
       reset();
       onClose();
-    } catch (error) {
-      console.error('Error al actualizar el usuario:', error);
-      toast.error('Error al actualizar el usuario.');
-      onClose();
+    } catch (error: any) {
+      console.error(
+        'Error al guardar el usuario:',
+        error.response?.data || error.message
+      );
+      toast.error(
+        error.response?.data?.message || 'Error al guardar el usuario.'
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -61,10 +94,7 @@ const UserModal = ({ isOpen, onClose, user }: UserModalProps) => {
             {user ? 'Editar Usuario' : 'Crear Usuario'}
           </h2>
           <button
-            onClick={() => {
-              toast.info('Edición cancelada');
-              onClose();
-            }}
+            onClick={onClose}
             className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
           >
             <X size={24} />
@@ -72,51 +102,48 @@ const UserModal = ({ isOpen, onClose, user }: UserModalProps) => {
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="flex w-full gap-2">
-            <div>
-              <label
-                htmlFor="name"
-                className="w-1/2 block text-sm font-medium mb-1"
-              >
-                Nombre
-              </label>
-              <input
-                {...register('name', { required: 'El nombre es obligatorio' })}
-                id="name"
-                type="text"
-                className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
-                placeholder="Nombre del usuario"
-              />
-              {errors.name && (
-                <p className="text-sm text-red-600 mt-1">
-                  {errors.name.message}
-                </p>
-              )}
-            </div>
-            <div>
-              <label
-                htmlFor="lastName"
-                className="w-1/2 block text-sm font-medium mb-1"
-              >
-                Apellido
-              </label>
-              <input
-                {...register('lastName', {
-                  required: 'El apellido es obligatorio',
-                })}
-                id="lastName"
-                type="text"
-                className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
-                placeholder="Apellido del usuario"
-              />
-              {errors.lastName && (
-                <p className="text-sm text-red-600 mt-1">
-                  {errors.lastName.message}
-                </p>
-              )}
-            </div>
+          {/* Nombre */}
+          <div>
+            <label htmlFor="name" className="block text-sm font-medium mb-1">
+              Nombre
+            </label>
+            <input
+              {...register('name', { required: 'El nombre es obligatorio' })}
+              id="name"
+              type="text"
+              className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
+              placeholder="Nombre del usuario"
+            />
+            {errors.name && (
+              <p className="text-sm text-red-600 mt-1">{errors.name.message}</p>
+            )}
           </div>
 
+          {/* Apellido */}
+          <div>
+            <label
+              htmlFor="lastName"
+              className="block text-sm font-medium mb-1"
+            >
+              Apellido
+            </label>
+            <input
+              {...register('lastName', {
+                required: 'El apellido es obligatorio',
+              })}
+              id="lastName"
+              type="text"
+              className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
+              placeholder="Apellido del usuario"
+            />
+            {errors.lastName && (
+              <p className="text-sm text-red-600 mt-1">
+                {errors.lastName.message}
+              </p>
+            )}
+          </div>
+
+          {/* Email */}
           <div>
             <label htmlFor="email" className="block text-sm font-medium mb-1">
               Correo Electrónico
@@ -141,6 +168,64 @@ const UserModal = ({ isOpen, onClose, user }: UserModalProps) => {
             )}
           </div>
 
+          {/* Contraseña (solo para creación) */}
+          {!user && (
+            <>
+              <div>
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium mb-1"
+                >
+                  Contraseña
+                </label>
+                <input
+                  {...register('password', {
+                    required: 'La contraseña es obligatoria',
+                    minLength: {
+                      value: 6,
+                      message: 'La contraseña debe tener al menos 6 caracteres',
+                    },
+                  })}
+                  id="password"
+                  type="password"
+                  className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
+                  placeholder="Contraseña"
+                />
+                {errors.password && (
+                  <p className="text-sm text-red-600 mt-1">
+                    {errors.password.message}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label
+                  htmlFor="confirmPassword"
+                  className="block text-sm font-medium mb-1"
+                >
+                  Confirmar Contraseña
+                </label>
+                <input
+                  {...register('confirmPassword', {
+                    required: 'La confirmación de contraseña es obligatoria',
+                    validate: (value) =>
+                      value === password || 'Las contraseñas no coinciden',
+                  })}
+                  id="confirmPassword"
+                  type="password"
+                  className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
+                  placeholder="Confirmar Contraseña"
+                />
+                {errors.confirmPassword && (
+                  <p className="text-sm text-red-600 mt-1">
+                    {errors.confirmPassword.message}
+                  </p>
+                )}
+              </div>
+            </>
+          )}
+
+          {/* Teléfono */}
           <div>
             <label htmlFor="phone" className="block text-sm font-medium mb-1">
               Teléfono
@@ -154,70 +239,53 @@ const UserModal = ({ isOpen, onClose, user }: UserModalProps) => {
             />
           </div>
 
-          <div className="flex w-full gap-2">
-            <div>
-              <label
-                htmlFor="weight"
-                className="block text-sm font-medium mb-1"
-              >
-                Peso (kg)
-              </label>
-              <input
-                {...register('weight', {
-                  required: 'El peso es obligatorio',
-                  valueAsNumber: true,
-                  min: { value: 1, message: 'El peso debe ser mayor a 0' },
-                })}
-                id="weight"
-                className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
-                placeholder="Peso en kilogramos"
-              />
-              {errors.weight && (
-                <p className="text-sm text-red-600 mt-1">
-                  {errors.weight.message}
-                </p>
-              )}
-            </div>
+          {/* Peso */}
+          <div>
+            <label htmlFor="weight" className="block text-sm font-medium mb-1">
+              Peso (kg)
+            </label>
+            <input
+              {...register('weight', { valueAsNumber: true })}
+              id="weight"
+              className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
+              placeholder="Peso en kilogramos"
+            />
+          </div>
 
-            <div>
-              <label
-                htmlFor="height"
-                className="block text-sm font-medium mb-1"
-              >
-                Altura (m)
-              </label>
-              <input
-                {...register('height', {
-                  required: 'La altura es obligatoria',
-                  valueAsNumber: true,
-                  min: {
-                    value: 0.5,
-                    message: 'La altura debe ser mayor a 0.5',
-                  },
-                  max: {
-                    value: 2.5,
-                    message: 'La altura no puede ser mayor a 2.5',
-                  },
-                })}
-                id="height"
-                className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
-                placeholder="Altura en metros"
-              />
-              {errors.height && (
-                <p className="text-sm text-red-600 mt-1">
-                  {errors.height.message}
-                </p>
-              )}
-            </div>
+          {/* Altura */}
+          <div>
+            <label htmlFor="height" className="block text-sm font-medium mb-1">
+              Altura (m)
+            </label>
+            <input
+              {...register('height', { valueAsNumber: true })}
+              id="height"
+              className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
+              placeholder="Altura en metros"
+            />
+          </div>
+
+          {/* Activo */}
+          <div>
+            <label
+              htmlFor="isActive"
+              className="block text-sm font-medium mb-1"
+            >
+              Activo
+            </label>
+            <input
+              {...register('isActive')}
+              id="isActive"
+              type="checkbox"
+              className="mr-2"
+              defaultChecked={user?.isActive}
+            />
           </div>
 
           <div className="flex justify-end gap-2 pt-2">
             <button
               type="button"
-              onClick={() => {
-                toast.info('Edición cancelada');
-                onClose();
-              }}
+              onClick={onClose}
               className="px-4 py-2 border rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
             >
               Cancelar
