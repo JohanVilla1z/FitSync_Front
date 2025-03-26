@@ -17,6 +17,8 @@ interface UserState {
   toggleUserActivity: (userId: number) => Promise<User>;
   setSearchQuery: (query: string) => void;
   updateUserInStore: (updatedUser: User) => void;
+  createUser: (newUser: Omit<User, 'id'>) => Promise<User>;
+  updateUser: (updatedUser: User) => Promise<User>;
   clearUsers: () => void;
 }
 
@@ -50,17 +52,13 @@ export const useUsersStore = create<UserState>()(
         }
       },
 
-      // Obtener usuarios solo si es necesario (datos antiguos o no disponibles)
+      // Obtener usuarios si es necesario
       fetchUsersIfNeeded: async () => {
-        const { lastFetched, users, fetchUsers } = get();
+        const { lastFetched, fetchUsers } = get();
         const now = Date.now();
 
-        // Obtener datos si: nunca se han cargado, han pasado más de 5 minutos, o no hay usuarios
-        if (
-          !lastFetched ||
-          now - lastFetched > 5 * 60 * 1000 ||
-          users.length === 0
-        ) {
+        // Si los usuarios no se han cargado recientemente (por ejemplo, en los últimos 5 minutos), cargar usuarios
+        if (!lastFetched || now - lastFetched > 5 * 60 * 1000) {
           await fetchUsers();
         }
       },
@@ -110,17 +108,6 @@ export const useUsersStore = create<UserState>()(
         });
       },
 
-      // Actualizar un usuario específico en el store
-      updateUserInStore: (updatedUser) => {
-        set((state) => ({
-          users: state.users.map((user) =>
-            user.id === updatedUser.id ? updatedUser : user
-          ),
-          filteredUsers: state.filteredUsers.map((user) =>
-            user.id === updatedUser.id ? updatedUser : user
-          ),
-        }));
-      },
       // Actualizar un usuario existente
       updateUser: async (updatedUser: User) => {
         try {
@@ -145,6 +132,40 @@ export const useUsersStore = create<UserState>()(
           throw error;
         }
       },
+
+      // Crear un nuevo usuario
+      createUser: async (newUser: Omit<User, 'id'>) => {
+        try {
+          const response = await axiosInstance.post<User>(
+            '/auth/register-user',
+            newUser
+          );
+
+          // Actualizar el estado global con el nuevo usuario
+          set((state) => ({
+            users: [...state.users, response.data],
+            filteredUsers: [...state.filteredUsers, response.data],
+          }));
+
+          return response.data;
+        } catch (error) {
+          console.error('Error al crear el usuario:', error);
+          throw error;
+        }
+      },
+
+      // Actualizar un usuario en el estado local (sin backend)
+      updateUserInStore: (updatedUser: User) => {
+        set((state) => ({
+          users: state.users.map((user) =>
+            user.id === updatedUser.id ? updatedUser : user
+          ),
+          filteredUsers: state.filteredUsers.map((user) =>
+            user.id === updatedUser.id ? updatedUser : user
+          ),
+        }));
+      },
+
       // Limpiar usuarios (útil para logout)
       clearUsers: () =>
         set({ users: [], filteredUsers: [], lastFetched: null }),
