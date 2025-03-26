@@ -1,34 +1,90 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import BasicInfo from '../../components/ui/BasicInfo';
+import EntryLogSection from '../../components/ui/EntryLogSection';
+import IMCDiagnosis from '../../components/ui/IMCDiagnosis';
+import ProfileHeader from '../../components/ui/ProfileHeader';
+import { Spinner } from '../../components/ui/Spinner'; // Asume que tienes un componente Spinner
+import { EntryLog } from '../../constants/entryLog';
+import { getUserEntryLogs } from '../../services/userService';
 import { useAuthStore, useUserProfileStore } from '../../store';
-import {
-  getActiveSinceMessage,
-  getAvatarByRole,
-  getGreeting,
-  getImcDiagnose,
-} from '../../utils';
+import { getImcDiagnose } from '../../utils';
 
+/**
+ * Componente principal del perfil de usuario
+ * Muestra información personal, diagnóstico IMC y historial de entradas
+ */
 const Profile = () => {
+  // Obtener datos de los stores globales
   const { user } = useAuthStore();
-  const { profile, isLoading, fetchUserProfile } = useUserProfileStore();
+  const {
+    profile,
+    isLoading: isLoadingProfile,
+    fetchUserProfile,
+  } = useUserProfileStore();
 
+  // Estados locales para el historial de entradas
+  const [entryLogs, setEntryLogs] = useState<EntryLog[]>([]);
+  const [isLoadingLogs, setIsLoadingLogs] = useState(true);
+  const [errorLogs, setErrorLogs] = useState<string | null>(null);
+
+  // Obtener perfil de usuario al montar el componente
   useEffect(() => {
     fetchUserProfile();
   }, [fetchUserProfile]);
 
-  if (isLoading) {
+  // Obtener historial de entradas al montar el componente
+  useEffect(() => {
+    const fetchEntryLogs = async () => {
+      try {
+        setIsLoadingLogs(true);
+        setErrorLogs(null);
+
+        const logs = await getUserEntryLogs();
+
+        // Asegurarse de que todos los campos requeridos estén presentes
+        // Si tu API no devuelve 'userName', agrega este campo al transformar los datos
+        setEntryLogs(logs);
+      } catch (error) {
+        console.error('Error al cargar historial de entradas:', error);
+        setErrorLogs('No se pudo cargar el historial de entradas.');
+      } finally {
+        setIsLoadingLogs(false);
+      }
+    };
+
+    fetchEntryLogs();
+  }, []);
+
+  // Mostrar spinner mientras se carga el perfil
+  if (isLoadingProfile) {
     return (
-      <p className="text-center text-foreground dark:text-foreground-dark">
-        Cargando...
-      </p>
+      <div className="flex justify-center items-center h-full">
+        <div className="text-center">
+          <Spinner className="h-12 w-12 mx-auto" />
+          <p className="mt-4 text-gray-600 dark:text-gray-300">
+            Cargando perfil...
+          </p>
+        </div>
+      </div>
     );
   }
 
+  // Mostrar mensaje de error si no se pudo cargar el perfil
   if (!profile) {
     return (
-      <p className="text-center text-red-500">No se pudo cargar el perfil.</p>
+      <div className="flex justify-center items-center h-full">
+        <div
+          className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded"
+          role="alert"
+        >
+          <p className="font-medium">No se pudo cargar el perfil.</p>
+          <p>Por favor, intenta recargar la página o contacta a soporte.</p>
+        </div>
+      </div>
     );
   }
 
+  // Calcular diagnóstico IMC
   const imcDiagnosis = profile.currentIMC
     ? getImcDiagnose(profile.currentIMC)
     : 'No se pudo calcular el diagnóstico del IMC.';
@@ -40,136 +96,17 @@ const Profile = () => {
         role="region"
         aria-labelledby="profile-header"
       >
-        {/* Encabezado */}
-        <header className="flex flex-col items-center mb-6">
-          <img
-            src={getAvatarByRole(user?.role)}
-            alt={
-              user?.role
-                ? `Avatar del usuario con rol ${user?.role}`
-                : 'Avatar del usuario'
-            }
-            className="w-56 h-56 rounded-full mb-4 bg-gray-200 dark:bg-white"
-          />
-          <h1
-            id="profile-header"
-            className="text-3xl font-bold text-foreground dark:text-foreground-dark"
-          >
-            {getGreeting()}, {profile.name}!
-          </h1>
-          <p className="text-muted dark:text-muted-dark">{profile.email}</p>
-        </header>
+        <ProfileHeader user={user} profile={profile} />
 
-        {/* Información Básica */}
-        <section aria-labelledby="basic-info-header" className="mb-6">
-          <h2
-            id="basic-info-header"
-            className="text-2xl font-semibold text-foreground dark:text-foreground-dark"
-          >
-            Información Básica
-          </h2>
-          <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <li>
-              <p className="text-sm font-medium text-muted dark:text-muted-dark">
-                Teléfono
-              </p>
-              <p className="text-lg text-foreground dark:text-foreground-dark">
-                {profile.phone || 'No disponible'}
-              </p>
-            </li>
-            <li>
-              <p className="text-sm font-medium text-muted dark:text-muted-dark">
-                Altura
-              </p>
-              <p className="text-lg text-foreground dark:text-foreground-dark">
-                {profile.height ? `${profile.height} m` : 'No disponible'}
-              </p>
-            </li>
-            <li>
-              <p className="text-sm font-medium text-muted dark:text-muted-dark">
-                Peso
-              </p>
-              <p className="text-lg text-foreground dark:text-foreground-dark">
-                {profile.weight ? `${profile.weight} kg` : 'No disponible'}
-              </p>
-            </li>
-            <li>
-              <p className="text-sm font-medium text-muted dark:text-muted-dark">
-                IMC Actual
-              </p>
-              <p className="text-lg text-foreground dark:text-foreground-dark">
-                {profile.currentIMC
-                  ? profile.currentIMC.toFixed(2)
-                  : 'No disponible'}
-              </p>
-            </li>
-          </ul>
-        </section>
+        <BasicInfo profile={profile} />
 
-        {/* Diagnóstico del IMC */}
-        <section aria-labelledby="imc-diagnosis-header" className="mb-6">
-          <h2
-            id="imc-diagnosis-header"
-            className="text-2xl font-semibold text-foreground dark:text-foreground-dark"
-          >
-            Diagnóstico del IMC
-          </h2>
-          <p className="text-lg text-foreground dark:text-foreground-dark">
-            {imcDiagnosis}
-          </p>
-        </section>
+        <IMCDiagnosis diagnosis={imcDiagnosis} imc={profile.currentIMC} />
 
-        {/* Fecha de Registro */}
-        <section aria-labelledby="register-date-header" className="mb-6">
-          <h2
-            id="register-date-header"
-            className="text-2xl font-semibold text-foreground dark:text-foreground-dark"
-          >
-            Fecha de Registro
-          </h2>
-          <p className="text-lg text-foreground dark:text-foreground-dark">
-            {getActiveSinceMessage(profile.registerDate)} (
-            {profile.registerDate})
-          </p>
-        </section>
-
-        {/* Entrenador */}
-        <section
-          className="mb-6"
-          role="complementary"
-          aria-labelledby="trainer-info-header"
-        >
-          <h2
-            id="trainer-info-header"
-            className="text-2xl font-semibold text-foreground dark:text-foreground-dark"
-          >
-            Entrenador
-          </h2>
-          {profile.trainerName ? (
-            <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <li>
-                <p className="text-sm font-medium text-muted dark:text-muted-dark">
-                  Nombre
-                </p>
-                <p className="text-lg text-foreground dark:text-foreground-dark">
-                  {profile.trainerName || 'No disponible'}
-                </p>
-              </li>
-              <li>
-                <p className="text-sm font-medium text-muted dark:text-muted-dark">
-                  Correo Electrónico
-                </p>
-                <p className="text-lg text-foreground dark:text-foreground-dark">
-                  {profile.trainerEmail || 'No disponible'}
-                </p>
-              </li>
-            </ul>
-          ) : (
-            <p className="text-lg text-red-500">
-              Aún no tienes un entrenador asignado.
-            </p>
-          )}
-        </section>
+        <EntryLogSection
+          entryLogs={entryLogs}
+          isLoading={isLoadingLogs}
+          error={errorLogs}
+        />
       </section>
     </main>
   );
