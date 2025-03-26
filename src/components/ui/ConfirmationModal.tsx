@@ -5,19 +5,25 @@ interface ConfirmationModalProps {
   confirmText?: string;
   cancelText?: string;
   onConfirm: () => void;
-  onCancel: () => void;
+  onCancel?: () => void;
+  onClose?: () => void;
 }
 
 const ConfirmationModal = ({
   isOpen,
   title,
   message,
-  confirmText = "Confirmar",
-  cancelText = "Cancelar",
+  confirmText = 'Confirmar',
+  cancelText = 'Cancelar',
   onConfirm,
   onCancel,
+  onClose,
 }: ConfirmationModalProps) => {
   if (!isOpen) return null;
+
+  const handleCancel = () => {
+    onClose || onCancel;
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
@@ -28,7 +34,7 @@ const ConfirmationModal = ({
         <p className="text-gray-600 dark:text-gray-300 mb-6">{message}</p>
         <div className="flex justify-end gap-4">
           <button
-            onClick={onCancel}
+            onClick={handleCancel}
             className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
           >
             {cancelText}
