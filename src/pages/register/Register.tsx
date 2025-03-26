@@ -1,10 +1,10 @@
-import { Lock, Mail, Ruler, User, Weight } from "lucide-react"; // Importar íconos de Lucide
-import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
-import axiosInstance from "../../api/axiosInstance";
-import { Button, Card, CardContent, Input } from "../../components/ui";
-import RegisterForm from "../../constants/auth/registerForm";
+import { Lock, Mail, Ruler, User, Weight } from 'lucide-react'; // Importar íconos de Lucide
+import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { Button, Card, CardContent, Input } from '../../components/ui';
+import RegisterForm from '../../constants/auth/registerForm';
+import { registerUser } from '../../services/authService';
 
 interface ExtendedRegisterForm extends RegisterForm {
   confirmPassword: string; // Campo adicional para confirmar la contraseña
@@ -20,17 +20,17 @@ const Register = () => {
   const navigate = useNavigate();
 
   // Observar el valor del campo "password" para compararlo con "confirmPassword"
-  const password = watch("password");
+  const password = watch('password');
 
   const onSubmit = async (data: ExtendedRegisterForm) => {
     try {
       const { confirmPassword, ...registerData } = data; // Excluir confirmPassword antes de enviar
-      await axiosInstance.post("/auth/register-user", registerData);
-      toast.success("Registro exitoso 🚀");
-      navigate("/login");
+      await registerUser(registerData); // Llamar al servicio de registro
+      toast.success('Registro exitoso 🚀');
+      navigate('/login');
     } catch (error) {
-      console.error("Error durante el registro:", error);
-      toast.error("Error al registrar el usuario. Inténtelo más tarde.");
+      console.error('Error durante el registro:', error);
+      toast.error('Error al registrar el usuario. Inténtelo más tarde.');
     }
   };
 
@@ -53,10 +53,10 @@ const Register = () => {
                 type="text"
                 placeholder="Nombre"
                 className="pl-10"
-                {...register("name", {
-                  required: "El nombre es obligatorio",
-                  minLength: { value: 2, message: "Mínimo 2 caracteres" },
-                  maxLength: { value: 50, message: "Máximo 50 caracteres" },
+                {...register('name', {
+                  required: 'El nombre es obligatorio',
+                  minLength: { value: 2, message: 'Mínimo 2 caracteres' },
+                  maxLength: { value: 50, message: 'Máximo 50 caracteres' },
                 })}
               />
               {errors.name && (
@@ -69,10 +69,10 @@ const Register = () => {
                 type="text"
                 placeholder="Apellido"
                 className="pl-10"
-                {...register("lastName", {
-                  required: "El apellido es obligatorio",
-                  minLength: { value: 2, message: "Mínimo 2 caracteres" },
-                  maxLength: { value: 50, message: "Máximo 50 caracteres" },
+                {...register('lastName', {
+                  required: 'El apellido es obligatorio',
+                  minLength: { value: 2, message: 'Mínimo 2 caracteres' },
+                  maxLength: { value: 50, message: 'Máximo 50 caracteres' },
                 })}
               />
               {errors.lastName && (
@@ -87,11 +87,11 @@ const Register = () => {
                 type="email"
                 placeholder="Correo electrónico"
                 className="pl-10"
-                {...register("email", {
-                  required: "El correo es obligatorio",
+                {...register('email', {
+                  required: 'El correo es obligatorio',
                   pattern: {
                     value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                    message: "Formato de correo inválido",
+                    message: 'Formato de correo inválido',
                   },
                 })}
               />
@@ -105,9 +105,9 @@ const Register = () => {
                 type="password"
                 placeholder="Contraseña"
                 className="pl-10"
-                {...register("password", {
-                  required: "La contraseña es obligatoria",
-                  minLength: { value: 6, message: "Mínimo 6 caracteres" },
+                {...register('password', {
+                  required: 'La contraseña es obligatoria',
+                  minLength: { value: 6, message: 'Mínimo 6 caracteres' },
                 })}
               />
               {errors.password && (
@@ -122,10 +122,10 @@ const Register = () => {
                 type="password"
                 placeholder="Confirmar Contraseña"
                 className="pl-10"
-                {...register("confirmPassword", {
-                  required: "La confirmación de contraseña es obligatoria",
+                {...register('confirmPassword', {
+                  required: 'La confirmación de contraseña es obligatoria',
                   validate: (value) =>
-                    value === password || "Las contraseñas no coinciden",
+                    value === password || 'Las contraseñas no coinciden',
                 })}
               />
               {errors.confirmPassword && (
@@ -141,8 +141,8 @@ const Register = () => {
                 placeholder="Altura (m)"
                 step="0.01"
                 className="pl-10"
-                {...register("userHeight", {
-                  required: "La altura es obligatoria",
+                {...register('userHeight', {
+                  required: 'La altura es obligatoria',
                 })}
               />
               {errors.userHeight && (
@@ -158,8 +158,8 @@ const Register = () => {
                 placeholder="Peso (kg)"
                 step="0.1"
                 className="pl-10"
-                {...register("userWeight", {
-                  required: "El peso es obligatorio",
+                {...register('userWeight', {
+                  required: 'El peso es obligatorio',
                 })}
               />
               {errors.userWeight && (
