@@ -135,20 +135,16 @@ const Profile = () => {
         role="region"
         aria-labelledby="profile-header"
       >
-        <div className="flex justify-between items-start mb-6">
-          <div className="flex-grow">
-            <ProfileHeader user={user} profile={profile} />
-          </div>
-
-          {/* Botón de edición del perfil */}
-          <button
-            onClick={() => setIsEditModalOpen(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-            aria-label="Editar perfil"
-          >
-            <Edit size={18} />
-            <span>Editar Perfil</span>
-          </button>
+        <button
+          onClick={() => setIsEditModalOpen(true)}
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          aria-label="Editar perfil"
+        >
+          <Edit size={18} />
+          <span>Editar Perfil</span>
+        </button>
+        <div className="flex-grow mb-9">
+          <ProfileHeader user={user} profile={profile} />
         </div>
 
         <BasicInfo profile={profile} />
