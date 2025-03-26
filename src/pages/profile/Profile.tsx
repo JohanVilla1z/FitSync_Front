@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Spinner } from '../../components/ui';
 import BasicInfo from '../../components/ui/BasicInfo';
+import ConfirmationModal from '../../components/ui/ConfirmationModal';
 import EntryLogSection from '../../components/ui/EntryLogSection';
+import FloatingActionButton from '../../components/ui/FloatingActionButton';
 import IMCDiagnosis from '../../components/ui/IMCDiagnosis';
 import ProfileHeader from '../../components/ui/ProfileHeader';
 import TrainerInfo from '../../components/ui/TrainerInfo';
 import { EntryLog } from '../../constants/entryLog';
-import { getUserEntryLogs } from '../../services/userService';
+import { getUserEntryLogs, registerGymEntry } from '../../services/userService';
 import { useAuthStore, useUserProfileStore } from '../../store';
 import { getImcDiagnose } from '../../utils';
 
@@ -28,6 +30,13 @@ const Profile = () => {
   const [isLoadingLogs, setIsLoadingLogs] = useState(true);
   const [errorLogs, setErrorLogs] = useState<string | null>(null);
 
+  // Estados para el modal y el registro de entrada
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isRegistering, setIsRegistering] = useState(false);
+  const [registrationError, setRegistrationError] = useState<string | null>(
+    null
+  );
+
   // Obtener perfil de usuario al montar el componente
   useEffect(() => {
     fetchUserProfile();
@@ -35,23 +44,49 @@ const Profile = () => {
 
   // Obtener historial de entradas al montar el componente
   useEffect(() => {
-    const fetchEntryLogs = async () => {
-      try {
-        setIsLoadingLogs(true);
-        setErrorLogs(null);
-
-        const logs = await getUserEntryLogs();
-        setEntryLogs(logs);
-      } catch (error) {
-        console.error('Error al cargar historial de entradas:', error);
-        setErrorLogs('No se pudo cargar el historial de entradas.');
-      } finally {
-        setIsLoadingLogs(false);
-      }
-    };
-
     fetchEntryLogs();
   }, []);
+
+  // Función para obtener el historial de entradas
+  const fetchEntryLogs = async () => {
+    try {
+      setIsLoadingLogs(true);
+      setErrorLogs(null);
+
+      const logs = await getUserEntryLogs();
+      setEntryLogs(logs);
+    } catch (error) {
+      console.error('Error al cargar historial de entradas:', error);
+      setErrorLogs('No se pudo cargar el historial de entradas.');
+    } finally {
+      setIsLoadingLogs(false);
+    }
+  };
+
+  // Función para registrar entrada al gimnasio
+  const handleRegisterEntry = async () => {
+    try {
+      setIsRegistering(true);
+      setRegistrationError(null);
+
+      // Llamar al endpoint para registrar entrada
+      await registerGymEntry();
+
+      // Cerrar modal de confirmación
+      setIsModalOpen(false);
+
+      // Refrescar historial de entradas para mostrar la nueva entrada
+      fetchEntryLogs();
+    } catch (error: any) {
+      console.error('Error al registrar entrada:', error);
+      setRegistrationError(
+        error.response?.data?.message ||
+          'No se pudo registrar la entrada. Inténtalo de nuevo.'
+      );
+    } finally {
+      setIsRegistering(false);
+    }
+  };
 
   // Mostrar spinner mientras se carga el perfil
   if (isLoadingProfile) {
@@ -88,7 +123,8 @@ const Profile = () => {
     : 'No se pudo calcular el diagnóstico del IMC.';
 
   return (
-    <main className="flex justify-center items-center h-full p-4">
+    <main className="flex justify-center items-center h-full p-4 relative">
+      {/* Contenido principal */}
       <section
         className="w-full max-w-4xl bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6"
         role="region"
@@ -110,7 +146,50 @@ const Profile = () => {
           isLoading={isLoadingLogs}
           error={errorLogs}
         />
+
+        {/* Mostrar error de registro si existe */}
+        {registrationError && (
+          <div
+            className="mt-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded"
+            role="alert"
+          >
+            <p>{registrationError}</p>
+          </div>
+        )}
       </section>
+
+      {/* Botón flotante para registrar entrada */}
+      <FloatingActionButton
+        onClick={() => setIsModalOpen(true)}
+        label="Registrar entrada al gimnasio"
+        icon={
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+            />
+          </svg>
+        }
+      />
+
+      {/* Modal de confirmación */}
+      <ConfirmationModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={handleRegisterEntry}
+        title="Confirmar entrada al gimnasio"
+        message="¿Estás seguro de que quieres registrar tu entrada al gimnasio ahora?"
+        confirmText={isRegistering ? 'Registrando...' : 'Confirmar entrada'}
+        cancelText="Cancelar"
+      />
     </main>
   );
 };
