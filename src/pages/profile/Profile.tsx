@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
+import { Spinner } from '../../components/ui';
 import BasicInfo from '../../components/ui/BasicInfo';
 import EntryLogSection from '../../components/ui/EntryLogSection';
 import IMCDiagnosis from '../../components/ui/IMCDiagnosis';
 import ProfileHeader from '../../components/ui/ProfileHeader';
-import { Spinner } from '../../components/ui/Spinner'; // Asume que tienes un componente Spinner
+import TrainerInfo from '../../components/ui/TrainerInfo';
 import { EntryLog } from '../../constants/entryLog';
 import { getUserEntryLogs } from '../../services/userService';
 import { useAuthStore, useUserProfileStore } from '../../store';
@@ -40,9 +41,6 @@ const Profile = () => {
         setErrorLogs(null);
 
         const logs = await getUserEntryLogs();
-
-        // Asegurarse de que todos los campos requeridos estén presentes
-        // Si tu API no devuelve 'userName', agrega este campo al transformar los datos
         setEntryLogs(logs);
       } catch (error) {
         console.error('Error al cargar historial de entradas:', error);
@@ -99,6 +97,11 @@ const Profile = () => {
         <ProfileHeader user={user} profile={profile} />
 
         <BasicInfo profile={profile} />
+
+        <TrainerInfo
+          trainerName={profile.trainerName}
+          trainerEmail={profile.trainerEmail}
+        />
 
         <IMCDiagnosis diagnosis={imcDiagnosis} imc={profile.currentIMC} />
 
