@@ -15,3 +15,4 @@ export * from './Spinner';
 export * from './TrainerInfo';
 export * from './UserList';
 export * from './UserTable';
+export * from './FloatingActionButton';
