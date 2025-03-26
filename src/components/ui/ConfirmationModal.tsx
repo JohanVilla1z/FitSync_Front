@@ -22,7 +22,11 @@ const ConfirmationModal = ({
   if (!isOpen) return null;
 
   const handleCancel = () => {
-    onClose || onCancel;
+    if (onClose) {
+      onClose();
+    } else if (onCancel) {
+      onCancel();
+    }
   };
 
   return (
