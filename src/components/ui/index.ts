@@ -12,5 +12,6 @@ export * from './input';
 export * from './LoadingFallBack';
 export * from './ProfileHeader';
 export * from './Spinner';
+export * from './TrainerInfo';
 export * from './UserList';
 export * from './UserTable';
