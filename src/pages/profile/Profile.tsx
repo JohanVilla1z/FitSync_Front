@@ -1,4 +1,4 @@
-import { DoorOpen } from 'lucide-react';
+import { DoorOpen, Edit } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Spinner } from '../../components/ui';
 import BasicInfo from '../../components/ui/BasicInfo';
@@ -6,6 +6,7 @@ import ConfirmationModal from '../../components/ui/ConfirmationModal';
 import EntryLogSection from '../../components/ui/EntryLogSection';
 import FloatingActionButton from '../../components/ui/FloatingActionButton';
 import IMCDiagnosis from '../../components/ui/IMCDiagnosis';
+import ProfileEditModal from '../../components/ui/ProfileEditModal';
 import ProfileHeader from '../../components/ui/ProfileHeader';
 import TrainerInfo from '../../components/ui/TrainerInfo';
 import { EntryLog } from '../../constants/entryLog';
@@ -37,6 +38,9 @@ const Profile = () => {
   const [registrationError, setRegistrationError] = useState<string | null>(
     null
   );
+
+  // Estado para el modal de edición de perfil
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   // Obtener perfil de usuario al montar el componente
   useEffect(() => {
@@ -131,7 +135,21 @@ const Profile = () => {
         role="region"
         aria-labelledby="profile-header"
       >
-        <ProfileHeader user={user} profile={profile} />
+        <div className="flex justify-between items-start mb-6">
+          <div className="flex-grow">
+            <ProfileHeader user={user} profile={profile} />
+          </div>
+
+          {/* Botón de edición del perfil */}
+          <button
+            onClick={() => setIsEditModalOpen(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            aria-label="Editar perfil"
+          >
+            <Edit size={18} />
+            <span>Editar Perfil</span>
+          </button>
+        </div>
 
         <BasicInfo profile={profile} />
 
@@ -176,6 +194,15 @@ const Profile = () => {
         confirmText={isRegistering ? 'Registrando...' : 'Confirmar entrada'}
         cancelText="Cancelar"
       />
+
+      {/* Modal de edición de perfil */}
+      {profile && (
+        <ProfileEditModal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          profile={profile}
+        />
+      )}
     </main>
   );
 };
