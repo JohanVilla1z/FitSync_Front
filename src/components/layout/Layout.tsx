@@ -3,7 +3,7 @@ import Sidebar from './SideBar';
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className="flex h-screen dark:bg-gray-600 dark:text-white">
+    <div className="flex min-h-screen dark:bg-gray-600 dark:text-white">
       <Sidebar />
       <div className="flex flex-col flex-1">
         <NavBar />
