@@ -36,19 +36,50 @@ export const useUsersStore = create<UserState>()(
       fetchUsers: async () => {
         set({ isLoading: true, error: null });
         try {
-          const response = await axiosInstance.get<User[]>('/user/all');
+          // Forzar a no usar caché para obtener datos frescos
+          const response = await axiosInstance.get<User[]>('/user/all', {
+            headers: {
+              'Cache-Control': 'no-cache',
+              Pragma: 'no-cache',
+            },
+          });
+
           set({
             users: response.data,
             filteredUsers: response.data,
             isLoading: false,
             lastFetched: Date.now(),
           });
+
+          console.log('Usuarios actualizados:', response.data.length);
         } catch (error) {
           console.error('Error fetching users:', error);
           set({
             error: 'Error al obtener los usuarios',
             isLoading: false,
           });
+        }
+      },
+
+      // Obtener un usuario específico por ID
+      fetchUserById: async (userId: number) => {
+        try {
+          const response = await axiosInstance.get<User>(`/user/${userId}`);
+
+          // Actualizar el usuario en el estado
+          set((state) => ({
+            users: state.users.map((user) =>
+              user.id === userId ? response.data : user
+            ),
+            filteredUsers: state.filteredUsers.map((user) =>
+              user.id === userId ? response.data : user
+            ),
+          }));
+
+          return response.data;
+        } catch (error) {
+          console.error(`Error al obtener el usuario con ID ${userId}:`, error);
+          throw error;
         }
       },
 
@@ -111,10 +142,34 @@ export const useUsersStore = create<UserState>()(
       // Actualizar un usuario existente
       updateUser: async (updatedUser: User) => {
         try {
+          // Crear una copia para no modificar el objeto original
+          const dataToSend = { ...updatedUser };
+
+          // Si el teléfono está vacío, enviarlo como null
+          if (dataToSend.phone === '') {
+            dataToSend.phone = null;
+          }
+
+          // Asegurarse de que los números sean realmente números
+          if (dataToSend.height !== undefined) {
+            dataToSend.height = Number(dataToSend.height);
+          }
+
+          if (dataToSend.weight !== undefined) {
+            dataToSend.weight = Number(dataToSend.weight);
+          }
+
+          console.log(
+            'Datos a enviar para actualización de usuario:',
+            dataToSend
+          );
+
           const response = await axiosInstance.put<User>(
             `/user/${updatedUser.id}`,
-            updatedUser
+            dataToSend
           );
+
+          console.log('Respuesta del servidor:', response.data);
 
           // Actualizar el usuario en el estado
           set((state) => ({
@@ -126,9 +181,14 @@ export const useUsersStore = create<UserState>()(
             ),
           }));
 
+          console.log('Response from server after update:', response.data);
           return response.data;
-        } catch (error) {
-          console.error('Error al actualizar el usuario:', error);
+        } catch (error: any) {
+          console.error('Error detallado al actualizar el usuario:', {
+            message: error.message,
+            response: error.response?.data,
+            status: error.response?.status,
+          });
           throw error;
         }
       },
