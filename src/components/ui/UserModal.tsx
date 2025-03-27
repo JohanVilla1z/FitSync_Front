@@ -1,5 +1,5 @@
 import { X } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import { User } from '../../constants';
@@ -20,7 +20,7 @@ interface ExtendedUser extends User {
 
 const UserModal = ({ isOpen, onClose, user }: UserModalProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { updateUser } = useUsersStore();
+  const { updateUser, fetchUsers } = useUsersStore();
 
   const {
     register,
@@ -40,31 +40,64 @@ const UserModal = ({ isOpen, onClose, user }: UserModalProps) => {
     },
   });
 
-  const password = watch('password'); // Observar el campo de contraseña para validación
+  const password = watch('password');
+
+  // Añadir useEffect para resetear el formulario cuando cambia el usuario
+  useEffect(() => {
+    if (user) {
+      reset({
+        ...user,
+        password: '',
+        confirmPassword: '',
+      });
+    }
+  }, [user, reset]);
 
   const onSubmit = async (data: ExtendedUser) => {
     setIsSubmitting(true);
     try {
       if (user) {
         // Editar usuario existente
-        await updateUser(data);
+        console.log('Datos del formulario para actualización:', data);
+
+        // Crear objeto limpio para actualización
+        const userToUpdate: User = {
+          ...data,
+          height:
+            typeof data.height === 'number'
+              ? data.height
+              : Number(data.height || 0),
+          weight:
+            typeof data.weight === 'number'
+              ? data.weight
+              : Number(data.weight || 0),
+          phone: data.phone === '' ? null : data.phone,
+        };
+
+        // Enviar los cambios al servidor
+        await updateUser(userToUpdate);
+
+        // Refrescar la lista de usuarios para asegurar sincronización
+        await fetchUsers();
+
         toast.success(
           `Usuario "${data.name} ${data.lastName}" actualizado exitosamente`
         );
       } else {
-        // Crear nuevo usuario
+        // Crear nuevo usuario - este código se mantiene igual
         const { confirmPassword, isActive, phone, height, weight, ...rest } =
           data;
 
-        // Transformar los datos para que coincidan con RegisterForm
         const newUserData: RegisterForm = {
           ...rest,
-          password: data.password || '', // Asegurarse de que la contraseña esté presente
-          userHeight: height || 0, // Mapear height a userHeight
-          userWeight: weight || 0, // Mapear weight a userWeight
+          password: data.password || '',
+          userHeight: height || 0,
+          userWeight: weight || 0,
         };
 
-        await registerUser(newUserData); // Usar el servicio de registro
+        await registerUser(newUserData);
+        await fetchUsers(); // Refrescar después de crear
+
         toast.success(
           `Usuario "${data.name} ${data.lastName}" creado exitosamente`
         );
@@ -72,13 +105,10 @@ const UserModal = ({ isOpen, onClose, user }: UserModalProps) => {
       reset();
       onClose();
     } catch (error: any) {
-      console.error(
-        'Error al guardar el usuario:',
-        error.response?.data || error.message
-      );
-      toast.error(
-        error.response?.data?.message || 'Error al guardar el usuario.'
-      );
+      const errorMessage =
+        error.response?.data?.message || 'Error al guardar el usuario.';
+      console.error('Error al guardar el usuario:', error);
+      toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
