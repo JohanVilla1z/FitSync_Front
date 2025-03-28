@@ -1,7 +1,43 @@
-import { Box } from 'lucide-react';
+import { Box, Plus } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import EquipmentList from '../../components/ui/EquipmentList';
+import EquipmentModal from '../../components/ui/EquipmentModal';
+import StatsCards, { StatItem } from '../../components/ui/StatsCards';
+import { useEquipmentStore } from '../../store/useEquipmentStore';
 
 const Equipment = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { fetchEquipment, fetchEquipmentStats, equipmentStats, isLoading } =
+    useEquipmentStore();
+
+  useEffect(() => {
+    fetchEquipment();
+    fetchEquipmentStats();
+  }, [fetchEquipment, fetchEquipmentStats]);
+
+  const statsCards: StatItem[] = [
+    {
+      title: 'Total Equipos',
+      value: equipmentStats?.total || 0,
+      color: 'default' as const,
+    },
+    {
+      title: 'Disponibles',
+      value: equipmentStats?.available || 0,
+      color: 'green' as const,
+    },
+    {
+      title: 'En préstamo',
+      value: equipmentStats?.onLoan || 0,
+      color: 'amber' as const,
+    },
+    {
+      title: 'No disponibles',
+      value: equipmentStats?.unavailable || 0,
+      color: 'red' as const,
+    },
+  ];
+
   return (
     <>
       <header className="mb-8 flex items-center justify-between">
@@ -16,48 +52,28 @@ const Equipment = () => {
         </div>
 
         <div className="flex gap-2">
-          <button className="flex items-center gap-1 px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
-            <Box size={18} />
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="flex items-center gap-1 px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+          >
+            <Plus size={18} />
             <span>Nuevo Equipo</span>
           </button>
         </div>
       </header>
 
-      {/* Estadísticas rápidas */}
-      <section className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-          <h3 className="text-sm text-gray-500 dark:text-gray-400 mb-1">
-            Total Equipos
-          </h3>
-          <p className="text-2xl font-bold">48</p>
-        </div>
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-          <h3 className="text-sm text-gray-500 dark:text-gray-400 mb-1">
-            Disponibles
-          </h3>
-          <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-            32
-          </p>
-        </div>
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-          <h3 className="text-sm text-gray-500 dark:text-gray-400 mb-1">
-            En préstamo
-          </h3>
-          <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">
-            16
-          </p>
-        </div>
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-          <h3 className="text-sm text-gray-500 dark:text-gray-400 mb-1">
-            No disponibles
-          </h3>
-          <p className="text-2xl font-bold text-red-600 dark:text-red-400">4</p>
-        </div>
-      </section>
+      {/* Estadísticas rápidas usando el componente */}
+      <StatsCards stats={statsCards} isLoading={isLoading} />
 
       <section>
         <EquipmentList />
       </section>
+
+      {/* Modal para crear/editar equipo */}
+      <EquipmentModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </>
   );
 };
