@@ -7,7 +7,6 @@ import UserTable from './UserTable';
 
 const UserList = () => {
   const {
-    users,
     filteredUsers,
     isLoading,
     error,
