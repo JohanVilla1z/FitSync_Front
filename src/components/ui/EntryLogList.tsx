@@ -24,10 +24,7 @@ const EntryLogList = () => {
   }, []);
 
   return (
-    <div>
-      <h2 className="text-xl font-semibold mb-4">Historial de Entradas</h2>
       <EntryLogTable isLoading={isLoading} entryLogs={entryLogs} />
-    </div>
   );
 };
 
