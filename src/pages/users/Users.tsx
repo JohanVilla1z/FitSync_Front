@@ -1,10 +1,40 @@
 import { UserPlus, Users as UsersIcon } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import StatsCards, { StatItem } from '../../components/ui/StatsCards';
 import UserList from '../../components/ui/UserList';
 import UserModal from '../../components/ui/UserModal';
+import { useUsersStore } from '../../store/useUsersStore';
 
 const Users = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { fetchUsers, userStats, isLoading } = useUsersStore();
+
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
+
+  const statsCards: StatItem[] = [
+    {
+      title: 'Total Usuarios',
+      value: userStats?.total || 0,
+      color: 'default' as const,
+    },
+    {
+      title: 'Usuarios Activos',
+      value: userStats?.active || 0,
+      color: 'green' as const,
+    },
+    {
+      title: 'Usuarios Inactivos',
+      value: userStats?.inactive || 0,
+      color: 'red' as const,
+    },
+    {
+      title: 'Con Entrenador',
+      value: userStats?.withTrainer || 0,
+      color: 'amber' as const,
+    },
+  ];
 
   return (
     <>
@@ -28,39 +58,8 @@ const Users = () => {
         </button>
       </header>
 
-      {/* Estadísticas rápidas */}
-      <section className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-          <h3 className="text-sm text-gray-500 dark:text-gray-400 mb-1">
-            Total Usuarios
-          </h3>
-          <p className="text-2xl font-bold">358</p>
-        </div>
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-          <h3 className="text-sm text-gray-500 dark:text-gray-400 mb-1">
-            Usuarios Activos
-          </h3>
-          <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-            245
-          </p>
-        </div>
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-          <h3 className="text-sm text-gray-500 dark:text-gray-400 mb-1">
-            Usuarios Inactivos
-          </h3>
-          <p className="text-2xl font-bold text-red-600 dark:text-red-400">
-            113
-          </p>
-        </div>
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-          <h3 className="text-sm text-gray-500 dark:text-gray-400 mb-1">
-            Con Entrenador
-          </h3>
-          <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">
-            187
-          </p>
-        </div>
-      </section>
+      {/* Estadísticas rápidas usando el componente StatsCards */}
+      <StatsCards stats={statsCards} isLoading={isLoading} />
 
       <section>
         <UserList />
