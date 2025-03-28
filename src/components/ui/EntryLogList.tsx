@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
-import axiosInstance from "../../api/axiosInstance";
-import { EntryLog } from "../../constants/entryLog";
-import EntryLogTable from "./EntryLogTable";
+import { useEffect, useState } from 'react';
+import axiosInstance from '../../api/axiosInstance';
+import { EntryLog } from '../../constants/entryLog';
+import EntryLogTable from './EntryLogTable';
 
 const EntryLogList = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -11,10 +11,10 @@ const EntryLogList = () => {
     const fetchEntryLogs = async () => {
       try {
         setIsLoading(true);
-        const response = await axiosInstance.get<EntryLog[]>("/entry-logs/all");
+        const response = await axiosInstance.get<EntryLog[]>('/entry-logs/all');
         setEntryLogs(response.data);
       } catch (error) {
-        console.error("Error fetching entry logs:", error);
+        console.error('Error fetching entry logs:', error);
       } finally {
         setIsLoading(false);
       }
@@ -23,9 +23,7 @@ const EntryLogList = () => {
     fetchEntryLogs();
   }, []);
 
-  return (
-      <EntryLogTable isLoading={isLoading} entryLogs={entryLogs} />
-  );
+  return <EntryLogTable isLoading={isLoading} entryLogs={entryLogs} />;
 };
 
 export default EntryLogList;
