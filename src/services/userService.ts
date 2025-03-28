@@ -89,3 +89,38 @@ export const updateUserProfile = async (
     throw error;
   }
 };
+
+/**
+ * Asigna un entrenador a un usuario
+ * @param userId ID del usuario
+ * @param trainerId ID del entrenador a asignar
+ * @returns Respuesta del servidor
+ */
+export const assignTrainerToUser = async (
+  userId: number,
+  trainerId: number
+): Promise<any> => {
+  try {
+    console.log('Enviando solicitud con datos:', { userId, trainerId });
+
+    // Asegúrate de que los valores sean números
+    const payload = {
+      userId: Number(userId),
+      trainerId: Number(trainerId),
+    };
+
+    const response = await axiosInstance.post('/trainer/assign-user', payload);
+    console.log('Respuesta recibida:', response.data);
+    return response.data;
+  } catch (error: any) {
+    console.error(
+      'Error al asignar entrenador al usuario:',
+      error.response?.data || error.message
+    );
+    // Mostrar más detalles del error
+    if (error.response) {
+      console.log('Detalles del error:', error.response.data);
+    }
+    throw error;
+  }
+};
