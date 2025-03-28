@@ -58,7 +58,18 @@ const AssignTrainerModal = ({
   if (!isOpen) return null;
 
   // Filtrar solo entrenadores activos
-  const activeTrainers = trainers.filter((trainer) => trainer.active);
+  const availableTrainers = trainers.filter(
+    (trainer) =>
+      trainer.active &&
+      (trainer.available !== undefined ? trainer.available : false)
+  );
+
+  // Añade un console.log para depurar
+  console.log('Todos los entrenadores:', trainers);
+  console.log(
+    'Entrenadores disponibles después del filtro:',
+    availableTrainers
+  );
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -106,7 +117,7 @@ const AssignTrainerModal = ({
               })}
             >
               <option value="">Selecciona un entrenador</option>
-              {activeTrainers.map((trainer) => (
+              {availableTrainers.map((trainer) => (
                 <option key={trainer.id} value={trainer.id}>
                   {trainer.name}
                 </option>
@@ -119,7 +130,7 @@ const AssignTrainerModal = ({
             )}
           </div>
 
-          {activeTrainers.length === 0 && (
+          {availableTrainers.length === 0 && (
             <p className="text-amber-600 dark:text-amber-400 text-sm">
               No hay entrenadores activos disponibles.
             </p>
@@ -135,7 +146,7 @@ const AssignTrainerModal = ({
             </button>
             <button
               type="submit"
-              disabled={isSubmitting || activeTrainers.length === 0}
+              disabled={isSubmitting || availableTrainers.length === 0}
               className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-blue-400"
             >
               {isSubmitting ? 'Asignando...' : 'Asignar'}
