@@ -4,6 +4,14 @@ import axiosInstance from '../api/axiosInstance';
 import { User } from '../constants';
 import { assignTrainerToUser } from '../services/userService';
 
+// Interfaz para las estadísticas de usuarios
+interface UserStats {
+  total: number;
+  active: number;
+  inactive: number;
+  withTrainer: number;
+}
+
 interface UserState {
   users: User[];
   filteredUsers: User[];
@@ -11,6 +19,7 @@ interface UserState {
   error: string | null;
   lastFetched: number | null;
   searchQuery: string;
+  userStats: UserStats;
 
   // Acciones
   fetchUsers: () => Promise<void>;
@@ -23,6 +32,7 @@ interface UserState {
   clearUsers: () => void;
   assignTrainerToUser: (userId: number, trainerId: number) => Promise<boolean>;
   fetchUserById: (userId: number) => Promise<User>;
+  fetchUserStats: () => void;
 }
 
 export const useUsersStore = create<UserState>()(
@@ -34,6 +44,12 @@ export const useUsersStore = create<UserState>()(
       error: null,
       lastFetched: null,
       searchQuery: '',
+      userStats: {
+        total: 0,
+        active: 0,
+        inactive: 0,
+        withTrainer: 0,
+      },
 
       // Obtener todos los usuarios
       fetchUsers: async () => {
@@ -55,6 +71,12 @@ export const useUsersStore = create<UserState>()(
           });
 
           console.log('Usuarios actualizados:', response.data.length);
+
+          // Calcular estadísticas después de obtener usuarios
+          const currentState = get();
+          if (currentState && currentState.fetchUserStats) {
+            currentState.fetchUserStats();
+          }
         } catch (error) {
           console.error('Error fetching users:', error);
           set({
@@ -62,6 +84,32 @@ export const useUsersStore = create<UserState>()(
             isLoading: false,
           });
         }
+      },
+
+      // Calcular y actualizar estadísticas de usuarios
+      fetchUserStats: () => {
+        const { users } = get();
+
+        if (!users || users.length === 0) {
+          return;
+        }
+
+        // Calcular estadísticas basadas en los datos existentes
+        const total = users.length;
+        const active = users.filter((user) => user.isActive).length;
+        const inactive = total - active;
+        const withTrainer = users.filter(
+          (user) => user.trainerName !== null && user.trainerName !== ''
+        ).length;
+
+        set({
+          userStats: {
+            total,
+            active,
+            inactive,
+            withTrainer,
+          },
+        });
       },
 
       // Obtener un usuario específico por ID
@@ -78,6 +126,9 @@ export const useUsersStore = create<UserState>()(
               user.id === userId ? response.data : user
             ),
           }));
+
+          // Recalcular estadísticas después de actualizar el usuario
+          get().fetchUserStats();
 
           return response.data;
         } catch (error) {
@@ -113,6 +164,9 @@ export const useUsersStore = create<UserState>()(
               user.id === userId ? response.data : user
             ),
           }));
+
+          // Recalcular estadísticas después de cambiar el estado de actividad
+          get().fetchUserStats();
 
           return response.data;
         } catch (error) {
@@ -184,6 +238,9 @@ export const useUsersStore = create<UserState>()(
             ),
           }));
 
+          // Recalcular estadísticas después de actualizar un usuario
+          get().fetchUserStats();
+
           console.log('Response from server after update:', response.data);
           return response.data;
         } catch (error: any) {
@@ -210,6 +267,9 @@ export const useUsersStore = create<UserState>()(
             filteredUsers: [...state.filteredUsers, response.data],
           }));
 
+          // Recalcular estadísticas después de crear un usuario
+          get().fetchUserStats();
+
           return response.data;
         } catch (error) {
           console.error('Error al crear el usuario:', error);
@@ -227,9 +287,12 @@ export const useUsersStore = create<UserState>()(
             user.id === updatedUser.id ? updatedUser : user
           ),
         }));
+
+        // Recalcular estadísticas después de actualizar un usuario en el store
+        get().fetchUserStats();
       },
 
-      // Añadir esta función al objeto que se pasa a create()
+      // Asignar entrenador a un usuario
       assignTrainerToUser: async (userId: number, trainerId: number) => {
         try {
           // Llamar al servicio para asignar el entrenador
@@ -237,6 +300,9 @@ export const useUsersStore = create<UserState>()(
 
           // Obtener el usuario actualizado para reflejar los cambios
           await get().fetchUserById(userId);
+
+          // Recalcular estadísticas después de asignar un entrenador
+          get().fetchUserStats();
 
           return true;
         } catch (error) {
@@ -247,7 +313,17 @@ export const useUsersStore = create<UserState>()(
 
       // Limpiar usuarios (útil para logout)
       clearUsers: () =>
-        set({ users: [], filteredUsers: [], lastFetched: null }),
+        set({
+          users: [],
+          filteredUsers: [],
+          lastFetched: null,
+          userStats: {
+            total: 0,
+            active: 0,
+            inactive: 0,
+            withTrainer: 0,
+          },
+        }),
     }),
     { name: 'user-storage' }
   )

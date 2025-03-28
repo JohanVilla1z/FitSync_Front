@@ -3,6 +3,14 @@ import { persist } from 'zustand/middleware';
 import axiosInstance from '../api/axiosInstance';
 import { Trainer } from '../constants';
 
+// Interfaz para las estadísticas de entrenadores
+interface TrainerStats {
+  total: number;
+  active: number;
+  assignedUsers: number;
+  unassignedTrainers: number;
+}
+
 interface TrainerState {
   trainers: Trainer[];
   filteredTrainers: Trainer[];
@@ -10,6 +18,7 @@ interface TrainerState {
   error: string | null;
   lastFetched: number | null;
   searchQuery: string;
+  trainerStats: TrainerStats;
 
   // Acciones
   fetchTrainers: () => Promise<void>;
@@ -19,6 +28,7 @@ interface TrainerState {
   createTrainer: (trainerData: Omit<Trainer, 'id'>) => Promise<Trainer>;
   updateTrainer: (updatedTrainer: Trainer) => Promise<Trainer>;
   clearTrainers: () => void;
+  fetchTrainerStats: () => Promise<void>;
 }
 
 export const useTrainersStore = create<TrainerState>()(
@@ -30,6 +40,12 @@ export const useTrainersStore = create<TrainerState>()(
       error: null,
       lastFetched: null,
       searchQuery: '',
+      trainerStats: {
+        total: 0,
+        active: 0,
+        assignedUsers: 0,
+        unassignedTrainers: 0,
+      },
 
       // Obtener todos los trainers
       fetchTrainers: async () => {
@@ -42,6 +58,12 @@ export const useTrainersStore = create<TrainerState>()(
             isLoading: false,
             lastFetched: Date.now(),
           });
+
+          // Actualizar las estadísticas automáticamente cuando se obtienen los entrenadores
+          const currentState = get();
+          if (currentState && currentState.fetchTrainerStats) {
+            currentState.fetchTrainerStats();
+          }
         } catch (error) {
           console.error('Error fetching trainers:', error);
           set({
@@ -78,6 +100,12 @@ export const useTrainersStore = create<TrainerState>()(
             trainers: [...state.trainers, response.data],
             filteredTrainers: [...state.filteredTrainers, response.data],
           }));
+
+          // Actualizar estadísticas después de crear un entrenador
+          const currentState = get();
+          if (currentState && currentState.fetchTrainerStats) {
+            currentState.fetchTrainerStats();
+          }
 
           return response.data;
         } catch (error) {
@@ -122,6 +150,12 @@ export const useTrainersStore = create<TrainerState>()(
               t.id === trainerId ? response.data : t
             ),
           }));
+
+          // Actualizar estadísticas después de cambiar el estado de actividad
+          const currentState = get();
+          if (currentState && currentState.fetchTrainerStats) {
+            currentState.fetchTrainerStats();
+          }
 
           return response.data;
         } catch (error) {
@@ -170,6 +204,12 @@ export const useTrainersStore = create<TrainerState>()(
             filteredTrainers: response.data,
           });
 
+          // Actualizar estadísticas después de actualizar un entrenador
+          const currentState = get();
+          if (currentState && currentState.fetchTrainerStats) {
+            currentState.fetchTrainerStats();
+          }
+
           return updatedTrainer; // Devolver el entrenador actualizado
         } catch (error) {
           console.error('Error al actualizar el entrenador:', error);
@@ -179,7 +219,51 @@ export const useTrainersStore = create<TrainerState>()(
 
       // Limpiar trainers
       clearTrainers: () =>
-        set({ trainers: [], filteredTrainers: [], lastFetched: null }),
+        set({
+          trainers: [],
+          filteredTrainers: [],
+          lastFetched: null,
+          trainerStats: {
+            total: 0,
+            active: 0,
+            assignedUsers: 0,
+            unassignedTrainers: 0,
+          },
+        }),
+
+      // Nueva función para calcular y actualizar estadísticas de entrenadores
+      fetchTrainerStats: async () => {
+        const { trainers } = get();
+
+        if (trainers.length === 0) {
+          return; // No hay datos para calcular estadísticas
+        }
+
+        // Calcular estadísticas basadas en los datos existentes
+        const total = trainers.length;
+        const active = trainers.filter((trainer) => trainer.active).length;
+
+        // Calcular el número total de usuarios asignados contando los IDs en userIds
+        const assignedUsers = trainers.reduce((sum, trainer) => {
+          return sum + (trainer.userIds?.length || 0);
+        }, 0);
+
+        // Contar entrenadores activos sin usuarios asignados
+        const unassignedTrainers = trainers.filter(
+          (trainer) =>
+            trainer.active && (!trainer.userIds || trainer.userIds.length === 0)
+        ).length;
+
+        // Actualizar el estado con las estadísticas calculadas
+        set({
+          trainerStats: {
+            total,
+            active,
+            assignedUsers,
+            unassignedTrainers,
+          },
+        });
+      },
     }),
     { name: 'trainers-storage' }
   )

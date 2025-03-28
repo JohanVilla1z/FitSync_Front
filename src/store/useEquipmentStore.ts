@@ -6,11 +6,18 @@ interface EquipmentState {
   equipment: Equipment[];
   isLoading: boolean;
   error: string | null;
+  equipmentStats: {
+    total: number;
+    available: number;
+    onLoan: number;
+    unavailable: number;
+  };
 
   // Acciones
   fetchEquipment: () => Promise<void>;
   createEquipment: (newEquipment: Omit<Equipment, 'id'>) => Promise<void>;
   updateEquipment: (updatedEquipment: Equipment) => Promise<void>;
+  fetchEquipmentStats: () => Promise<void>;
 }
 
 export const useEquipmentStore = create<EquipmentState>((set) => ({
@@ -51,6 +58,43 @@ export const useEquipmentStore = create<EquipmentState>((set) => ({
     } catch (error) {
       console.error('Error updating equipment:', error);
       set({ error: 'Error al actualizar el equipo', isLoading: false });
+    }
+  },
+
+  equipmentStats: {
+    total: 0,
+    available: 0,
+    onLoan: 0,
+    unavailable: 0,
+  },
+
+  fetchEquipmentStats: async () => {
+    set({ isLoading: true });
+    try {
+      const equipment = await axiosInstance
+        .get<Equipment[]>('/equipment')
+        .then((res) => res.data);
+      if (equipment.length > 0) {
+        const total = equipment.length;
+        const available = equipment.filter(
+          (item: Equipment) => item.available && item.currentLoans === 0
+        ).length;
+        const onLoan = equipment.filter(
+          (item: Equipment) => item.available && item.currentLoans > 0
+        ).length;
+        const unavailable = equipment.filter(
+          (item: Equipment) => !item.available
+        ).length;
+
+        set({
+          equipmentStats: { total, available, onLoan, unavailable },
+          isLoading: false,
+        });
+        return;
+      }
+    } catch (error) {
+      console.error('Error fetching equipment stats:', error);
+      set({ isLoading: false });
     }
   },
 }));
