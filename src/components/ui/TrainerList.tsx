@@ -1,3 +1,4 @@
+import { Search } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useTrainersStore } from '../../store/useTrainersStore';
 import TrainerModal from './TrainerModal';
@@ -14,23 +15,21 @@ const TrainerList = () => {
 
   return (
     <div>
-      <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <section className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <h2 className="text-xl font-semibold">Lista de Entrenadores</h2>
-        <div className="flex gap-4">
+        <div className="relative w-full md:w-1/4">
+          <Search
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+            size={18}
+          />
           <input
             type="text"
             placeholder="Buscar entrenador..."
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="p-2 border rounded-md w-full sm:w-64 dark:bg-gray-800 dark:border-gray-700"
+            className="pl-10 pr-4 py-2 w-full rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-800"
           />
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-          >
-            Crear Entrenador
-          </button>
         </div>
-      </div>
+      </section>
       <TrainerTable isLoading={isLoading} trainers={filteredTrainers} />
       {isModalOpen && (
         <TrainerModal
