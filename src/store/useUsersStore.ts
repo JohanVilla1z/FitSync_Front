@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import axiosInstance from '../api/axiosInstance';
 import { User } from '../constants';
+import { assignTrainerToUser } from '../services/userService';
 
 interface UserState {
   users: User[];
@@ -20,6 +21,8 @@ interface UserState {
   createUser: (newUser: Omit<User, 'id'>) => Promise<User>;
   updateUser: (updatedUser: User) => Promise<User>;
   clearUsers: () => void;
+  assignTrainerToUser: (userId: number, trainerId: number) => Promise<boolean>;
+  fetchUserById: (userId: number) => Promise<User>;
 }
 
 export const useUsersStore = create<UserState>()(
@@ -224,6 +227,22 @@ export const useUsersStore = create<UserState>()(
             user.id === updatedUser.id ? updatedUser : user
           ),
         }));
+      },
+
+      // Añadir esta función al objeto que se pasa a create()
+      assignTrainerToUser: async (userId: number, trainerId: number) => {
+        try {
+          // Llamar al servicio para asignar el entrenador
+          await assignTrainerToUser(userId, trainerId);
+
+          // Obtener el usuario actualizado para reflejar los cambios
+          await get().fetchUserById(userId);
+
+          return true;
+        } catch (error) {
+          console.error('Error al asignar entrenador:', error);
+          throw error;
+        }
       },
 
       // Limpiar usuarios (útil para logout)
