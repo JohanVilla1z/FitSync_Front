@@ -1,4 +1,4 @@
-import { Pencil, Power } from 'lucide-react';
+import { Pencil, User, UserX } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { Trainer } from '../../constants';
@@ -52,28 +52,45 @@ const TrainerTable = ({ isLoading, trainers }: TrainerTableProps) => {
 
   return (
     <div className="overflow-x-auto">
-      <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-md dark:bg-gray-800 dark:border-gray-700">
-        <thead>
-          <tr className="bg-gray-100 dark:bg-gray-700 text-left">
-            <th className="px-3 py-2 border-b dark:border-gray-600">ID</th>
-            <th className="px-3 py-2 border-b dark:border-gray-600">Nombre</th>
-            <th className="px-3 py-2 border-b dark:border-gray-600">Email</th>
-            <th className="px-3 py-2 border-b dark:border-gray-600">Activo</th>
-            <th className="px-3 py-2 border-b dark:border-gray-600">
+      <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+        <thead className="bg-gray-50 dark:bg-gray-800">
+          <tr>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              Entrenador
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              Contacto
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              Usuarios asignados
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              Estado
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
               Acciones
             </th>
           </tr>
         </thead>
-        <tbody>
+        <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-900 dark:divide-gray-700">
           {isLoading ? (
             <tr>
-              <td colSpan={5} className="text-center py-4">
-                Cargando...
+              <td
+                colSpan={5}
+                className="px-6 py-4 text-center whitespace-nowrap text-gray-500 dark:text-gray-400"
+              >
+                <div className="flex justify-center">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                </div>
+                <div className="mt-2">Cargando entrenadores...</div>
               </td>
             </tr>
           ) : trainers.length === 0 ? (
             <tr>
-              <td colSpan={5} className="text-center py-4">
+              <td
+                colSpan={5}
+                className="px-6 py-10 text-center whitespace-nowrap text-gray-500 dark:text-gray-400"
+              >
                 No hay entrenadores disponibles.
               </td>
             </tr>
@@ -81,40 +98,73 @@ const TrainerTable = ({ isLoading, trainers }: TrainerTableProps) => {
             trainers.map((trainer) => (
               <tr
                 key={trainer.id}
-                className="hover:bg-gray-50 dark:hover:bg-gray-700"
+                className="hover:bg-gray-50 dark:hover:bg-gray-800"
               >
-                <td className="px-3 py-2 border-b dark:border-gray-600">
-                  {trainer.id}
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="flex items-center">
+                    <div>
+                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                        {trainer.name}
+                      </div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400">
+                        ID: {trainer.id}
+                      </div>
+                    </div>
+                  </div>
                 </td>
-                <td className="px-3 py-2 border-b dark:border-gray-600">
-                  {trainer.name}
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="text-sm text-gray-900 dark:text-gray-100">
+                    {trainer.email}
+                  </div>
                 </td>
-                <td className="px-3 py-2 border-b dark:border-gray-600">
-                  {trainer.email}
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="text-sm text-gray-900 dark:text-gray-100">
+                    {trainer.userIds ? trainer.userIds.length : 0} usuarios
+                  </div>
                 </td>
-                <td className="px-3 py-2 border-b dark:border-gray-600">
-                  {trainer.active ? 'Sí' : 'No'}
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <span
+                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                      trainer.active
+                        ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                        : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                    }`}
+                  >
+                    {trainer.active ? 'Activo' : 'Inactivo'}
+                  </span>
                 </td>
-                <td className="px-3 py-2 border-b dark:border-gray-600">
-                  <div className="flex items-center gap-2 justify-evenly">
-                    {/* Botón para activar/desactivar */}
-                    <button
-                      onClick={() => handleToggleActivity(trainer)}
-                      className={`h-5 w-5 rounded-full flex align-middle items-center bg-opacity-70 justify-center ${
-                        trainer.active ? 'bg-green-500' : 'bg-red-500'
-                      }`}
-                    >
-                      <span className="align-middle">
-                        <Power />
-                      </span>
-                    </button>
-
-                    {/* Botón para editar */}
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="flex space-x-2">
                     <button
                       onClick={() => handleEdit(trainer)}
-                      className="h-5 w-5 flex align-middle items-center justify-center rounded-full"
+                      className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
+                      title="Editar entrenador"
                     >
-                      <Pencil size={18} />
+                      <Pencil
+                        size={18}
+                        className="text-amber-600 dark:text-amber-400"
+                      />
+                    </button>
+                    <button
+                      onClick={() => handleToggleActivity(trainer)}
+                      className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
+                      title={
+                        trainer.active
+                          ? 'Desactivar entrenador'
+                          : 'Activar entrenador'
+                      }
+                    >
+                      {trainer.active ? (
+                        <UserX
+                          size={18}
+                          className="text-red-600 dark:text-red-400"
+                        />
+                      ) : (
+                        <User
+                          size={18}
+                          className="text-green-600 dark:text-green-400"
+                        />
+                      )}
                     </button>
                   </div>
                 </td>
@@ -142,7 +192,7 @@ const TrainerTable = ({ isLoading, trainers }: TrainerTableProps) => {
         }}
       />
 
-      {/* Modal para ver detalles */}
+      {/* Modal de edicion */}
       {isModalOpen && selectedTrainer && (
         <TrainerModal
           isOpen={isModalOpen}
