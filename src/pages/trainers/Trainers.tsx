@@ -1,10 +1,42 @@
 import { UserPlus, Users } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import StatsCards, { StatItem } from '../../components/ui/StatsCards';
 import TrainerList from '../../components/ui/TrainerList';
 import TrainerModal from '../../components/ui/TrainerModal';
+import { useTrainersStore } from '../../store/useTrainersStore';
 
 const Trainers = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { fetchTrainers, fetchTrainerStats, trainerStats, isLoading } =
+    useTrainersStore();
+
+  useEffect(() => {
+    fetchTrainers();
+    fetchTrainerStats();
+  }, [fetchTrainers, fetchTrainerStats]);
+
+  const statsCards: StatItem[] = [
+    {
+      title: 'Total Entrenadores',
+      value: trainerStats?.total || 0,
+      color: 'default' as const,
+    },
+    {
+      title: 'Entrenadores Activos',
+      value: trainerStats?.active || 0,
+      color: 'green' as const,
+    },
+    {
+      title: 'Con Usuarios Asignados',
+      value: trainerStats?.assignedUsers || 0,
+      color: 'amber' as const,
+    },
+    {
+      title: 'Sin Asignaciones',
+      value: trainerStats?.unassignedTrainers || 0,
+      color: 'red' as const,
+    },
+  ];
 
   return (
     <>
@@ -30,44 +62,14 @@ const Trainers = () => {
         </div>
       </header>
 
-      {/* Estadísticas rápidas */}
-      <section className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-          <h3 className="text-sm text-gray-500 dark:text-gray-400 mb-1">
-            Total Entrenadores
-          </h3>
-          <p className="text-2xl font-bold">12</p>
-        </div>
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-          <h3 className="text-sm text-gray-500 dark:text-gray-400 mb-1">
-            Entrenadores Activos
-          </h3>
-          <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-            10
-          </p>
-        </div>
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-          <h3 className="text-sm text-gray-500 dark:text-gray-400 mb-1">
-            Usuarios Asignados
-          </h3>
-          <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">
-            187
-          </p>
-        </div>
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-          <h3 className="text-sm text-gray-500 dark:text-gray-400 mb-1">
-            Sin Asignaciones
-          </h3>
-          <p className="text-2xl font-bold text-red-600 dark:text-red-400">2</p>
-        </div>
-      </section>
+      {/* Estadísticas rápidas usando el componente StatsCards */}
+      <StatsCards stats={statsCards} isLoading={isLoading} />
 
       <section>
         <TrainerList />
       </section>
 
       {/* Modal para crear entrenadores */}
-      {/* Asume que TrainerModal existe - si no existe deberás crearlo */}
       {isModalOpen && (
         <TrainerModal
           isOpen={isModalOpen}
