@@ -1,4 +1,4 @@
-import { Plus, Search } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { useUsersStore } from '../../store/useUsersStore';
@@ -34,9 +34,10 @@ const UserList = () => {
 
   return (
     <div>
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+      <section className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+        <h2 className="text-xl font-semibold">Lista de Usuarios</h2>
         {/* Barra de búsqueda */}
-        <div className="relative w-full md:w-64">
+        <div className="relative w-full md:w-1/4">
           <Search
             className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
             size={18}
@@ -49,16 +50,7 @@ const UserList = () => {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-
-        {/* Botón para crear nuevo usuario */}
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-        >
-          <Plus size={18} />
-          Nuevo Usuario
-        </button>
-      </div>
+      </section>
 
       <UserTable users={filteredUsers} />
 
