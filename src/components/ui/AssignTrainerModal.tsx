@@ -64,13 +64,6 @@ const AssignTrainerModal = ({
       (trainer.available !== undefined ? trainer.available : false)
   );
 
-  // Añade un console.log para depurar
-  console.log('Todos los entrenadores:', trainers);
-  console.log(
-    'Entrenadores disponibles después del filtro:',
-    availableTrainers
-  );
-
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 w-full max-w-md">
