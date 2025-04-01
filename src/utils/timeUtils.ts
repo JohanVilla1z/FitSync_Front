@@ -29,3 +29,21 @@ export const getActiveSinceMessage = (registerDate: string): string => {
     return `Activo desde hace ${days} día${days > 1 ? 's' : ''}`;
   }
 };
+
+/**
+ * Formatea una fecha en formato legible
+ * @param dateString Fecha en formato ISO string
+ * @returns Fecha formateada
+ */
+export const formatDate = (dateString: string): string => {
+  if (!dateString) return 'N/A';
+
+  const date = new Date(dateString);
+  return new Intl.DateTimeFormat('es-ES', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(date);
+};
