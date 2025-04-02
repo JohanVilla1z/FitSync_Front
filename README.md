@@ -1,54 +1,70 @@
-# React + TypeScript + Vite
+# FitSync Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Una aplicación moderna de seguimiento fitness y gestión de gimnasios construida con React, TypeScript y Vite.
 
-Currently, two official plugins are available:
+## Características
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- 🏋️ Seguimiento y gestión de equipamiento
+- 👥 Perfiles de usuarios y entrenadores
+- 📊 Estadísticas de fitness y seguimiento de progreso
+- 🌓 Soporte para modo claro/oscuro
+- 🔒 Autenticación basada en roles
+- 📱 Diseño responsive
 
-## Expanding the ESLint configuration
+## Stack Tecnológico
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- React 19
+- TypeScript
+- Vite
+- TailwindCSS
+- Zustand (Gestión de Estado)
+- React Router
+- Axios
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+## Primeros Pasos
+
+### Prerrequisitos
+
+- Node.js 18+
+- npm/yarn/pnpm
+
+### Instalación
+
+```bash
+# Clonar el repositorio
+git clone https://github.com/yourusername/fitsync-front.git
+
+# Instalar dependencias
+npm install
+
+# Iniciar servidor de desarrollo
+npm run dev
+
+# Crear build de producción
+npm run build
+
+# Vista previa del build de producción
+npm run preview
+
+# Estructura del proyecto
+src/
+├── api/         # Configuración de API
+├── components/  # Componentes React
+├── constants/   # Definiciones de tipos y constantes
+├── pages/       # Componentes de páginas
+├── store/       # Gestión de estado
+├── utils/       # Funciones de utilidad
+└── assets/      # Recursos estáticos
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Contribución
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- 1 Haz un fork del proyecto
+- 2 Crea tu rama de características (git checkout -b feature/CaracteristicaIncreible)
+- 3 Haz commit de tus cambios (git commit -m 'Añadir CaracteristicaIncreible')
+- 4 Sube los cambios a tu rama (git push origin feature/CaracteristicaIncreible)
+- 5 Abre un Pull Request
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+## Licencia
+
+Este proyecto está licenciado bajo la Licencia MIT - ver el archivo LICENSE para más detalles.
