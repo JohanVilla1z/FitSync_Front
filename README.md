@@ -57,6 +57,54 @@ src/
 └── assets/      # Recursos estáticos
 ```
 
+## Conexión con API (Spring Boot)
+
+El frontend de FitSync se conecta a una API RESTful desarrollada con Spring Boot a través de Axios. La configuración centralizada permite una gestión eficiente de las peticiones y el manejo de autenticación.
+
+### Configuración de la API
+
+La configuración de la conexión se encuentra en `src/api/axiosInstance.ts`:
+
+```typescript
+// Instancia centralizada de Axios con interceptores para JWT
+import axios from 'axios';
+import { useAuthStore } from '../store';
+
+const axiosInstance = axios.create({
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8080/api',
+  timeout: 10000,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// Interceptor para añadir token de autenticación
+axiosInstance.interceptors.request.use(
+  (config) => {
+    const token = useAuthStore.getState().token;
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// Interceptor para manejar respuestas
+axiosInstance.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    // Manejo centralizado de errores (401, 403, etc.)
+    if (error.response?.status === 401) {
+      useAuthStore.getState().logout();
+    }
+    return Promise.reject(error);
+  }
+);
+
+export default axiosInstance;
+```
+
 ## Contribución
 
 - 1 Haz un fork del proyecto
