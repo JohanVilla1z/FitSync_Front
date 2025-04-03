@@ -1,16 +1,16 @@
+import { DoorOpen } from 'lucide-react';
 import { useState } from 'react';
 import { Role } from '../../../constants';
-import { DoorOpen } from 'lucide-react';
-import BasicInfo from '../BasicInfo';
-import TrainerInfo from '../TrainerInfo';
-import IMCDiagnosis from '../IMCDiagnosis';
-import EntryLogSection from '../EntryLogSection';
-import ConfirmationModal from '../ConfirmationModal';
-import FloatingActionButton from '../FloatingActionButton';
-import { useEntryLogs } from '../../../hooks/useEntryLogs';
-import { getImcDiagnose } from '../../../utils';
 import { User } from '../../../constants/User';
 import { EntryLog } from '../../../constants/entryLog';
+import { useEntryLogs } from '../../../hooks/useEntryLogs';
+import { getImcDiagnose } from '../../../utils';
+import BasicInfo from '../BasicInfo';
+import ConfirmationModal from '../ConfirmationModal';
+import EntryLogSection from '../EntryLogSection';
+import FloatingActionButton from '../FloatingActionButton';
+import IMCDiagnosis from '../IMCDiagnosis';
+import TrainerInfo from '../TrainerInfo';
 
 // Definimos explícitamente las props
 interface UserProfileContentProps {

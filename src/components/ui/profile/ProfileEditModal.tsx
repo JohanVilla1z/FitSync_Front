@@ -4,8 +4,8 @@ import { toast } from 'react-toastify';
 import { Spinner } from '..';
 import axiosInstance from '../../../api/axiosInstance';
 import { Role } from '../../../constants';
-import { UserProfile } from '../../../store/useUserProfileStore';
 import { useUserProfileStore } from '../../../store';
+import { UserProfile } from '../../../store/useUserProfileStore';
 
 interface ProfileEditModalProps {
   isOpen: boolean;

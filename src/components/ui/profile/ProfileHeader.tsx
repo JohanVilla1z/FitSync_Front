@@ -1,6 +1,6 @@
 import { Edit } from 'lucide-react';
 import { UserProfile } from '../../../store/useUserProfileStore';
-import { getGreeting, getActiveSinceMessage } from '../../../utils';
+import { getActiveSinceMessage, getGreeting } from '../../../utils';
 
 interface ProfileHeaderProps {
   profile: UserProfile;

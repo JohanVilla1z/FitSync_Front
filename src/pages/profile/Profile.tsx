@@ -1,17 +1,15 @@
 import { useEffect, useState } from 'react';
-import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { Spinner } from '../../components/ui';
+import AdminProfileContent from '../../components/ui/profile/AdminProfileContent';
+import ProfileEditModal from '../../components/ui/profile/ProfileEditModal';
 import ProfileHeader from '../../components/ui/profile/ProfileHeader';
 import ProfileRoleIcon from '../../components/ui/profile/ProfileRoleIcon';
-// Importamos correctamente los componentes de contenido
-import UserProfileContent from '../../components/ui/profile/UserProfileContent';
 import TrainerProfileContent from '../../components/ui/profile/TrainerProfileContent';
-import AdminProfileContent from '../../components/ui/profile/AdminProfileContent';
-import { Role, User } from '../../constants';
+import UserProfileContent from '../../components/ui/profile/UserProfileContent';
+import { Role } from '../../constants';
 import { useAuthStore, useUserProfileStore } from '../../store';
-import { UserProfile } from '../../store/useUserProfileStore';
-import ProfileEditModal from '../../components/ui/profile/ProfileEditModal';
 
 const Profile = () => {
   const navigate = useNavigate();
