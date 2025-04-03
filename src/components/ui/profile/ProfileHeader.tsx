@@ -11,7 +11,7 @@ const ProfileHeader = ({ profile, onEditClick }: ProfileHeaderProps) => (
   <div className="flex justify-between items-start mb-6">
     <div className="flex-grow">
       <h1 className="text-2xl font-bold mb-1">
-        {getGreeting()}, {profile.name}
+        {getGreeting()}, {profile.name}!
       </h1>
       <p className="text-gray-600 dark:text-gray-400">{profile.email}</p>
       {profile.registerDate && (
