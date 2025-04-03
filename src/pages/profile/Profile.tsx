@@ -1,99 +1,61 @@
-import { DoorOpen, Edit } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 import { Spinner } from '../../components/ui';
-import BasicInfo from '../../components/ui/BasicInfo';
-import ConfirmationModal from '../../components/ui/ConfirmationModal';
-import EntryLogSection from '../../components/ui/EntryLogSection';
-import FloatingActionButton from '../../components/ui/FloatingActionButton';
-import IMCDiagnosis from '../../components/ui/IMCDiagnosis';
-import ProfileEditModal from '../../components/ui/ProfileEditModal';
-import ProfileHeader from '../../components/ui/ProfileHeader';
-import TrainerInfo from '../../components/ui/TrainerInfo';
-import { EntryLog } from '../../constants/entryLog';
-import { getUserEntryLogs, registerGymEntry } from '../../services/userService';
+import ProfileHeader from '../../components/ui/profile/ProfileHeader';
+import ProfileRoleIcon from '../../components/ui/profile/ProfileRoleIcon';
+// Importamos correctamente los componentes de contenido
+import UserProfileContent from '../../components/ui/profile/UserProfileContent';
+import TrainerProfileContent from '../../components/ui/profile/TrainerProfileContent';
+import AdminProfileContent from '../../components/ui/profile/AdminProfileContent';
+import { Role, User } from '../../constants';
 import { useAuthStore, useUserProfileStore } from '../../store';
-import { getImcDiagnose } from '../../utils';
+import { UserProfile } from '../../store/useUserProfileStore';
+import ProfileEditModal from '../../components/ui/profile/ProfileEditModal';
 
-/**
- * Componente principal del perfil de usuario
- * Muestra información personal, diagnóstico IMC y historial de entradas
- */
 const Profile = () => {
-  // Obtener datos de los stores globales
-  const { user } = useAuthStore();
+  const navigate = useNavigate();
+  const { user, logout } = useAuthStore();
   const {
     profile,
     isLoading: isLoadingProfile,
+    error: profileError,
     fetchUserProfile,
   } = useUserProfileStore();
 
-  // Estados locales para el historial de entradas
-  const [entryLogs, setEntryLogs] = useState<EntryLog[]>([]);
-  const [isLoadingLogs, setIsLoadingLogs] = useState(true);
-  const [errorLogs, setErrorLogs] = useState<string | null>(null);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
-  // Estados para el modal y el registro de entrada
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isRegistering, setIsRegistering] = useState(false);
-  const [registrationError, setRegistrationError] = useState<string | null>(
-    null
-  );
+  // Determinar el rol
+  const userRole = profile?.role || user?.role || Role.USER;
+  const isAdmin = userRole === Role.ADMIN;
+  const isTrainer = userRole === Role.TRAINER;
+  const isRegularUser = userRole === Role.USER;
 
-  // Estado para el modal de edición de perfil
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-
-  // Obtener perfil de usuario al montar el componente
+  // Cargar perfil
   useEffect(() => {
-    fetchUserProfile();
-  }, [fetchUserProfile]);
+    const loadProfile = async () => {
+      try {
+        await fetchUserProfile();
+      } catch (error: any) {
+        if (
+          error?.response?.status === 401 ||
+          error?.response?.status === 403
+        ) {
+          toast.error(
+            'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.'
+          );
+          logout();
+          navigate('/login');
+        } else {
+          toast.error('No se pudo cargar tu perfil. Inténtalo nuevamente.');
+        }
+      }
+    };
 
-  // Obtener historial de entradas al montar el componente
-  useEffect(() => {
-    fetchEntryLogs();
-  }, []);
+    loadProfile();
+  }, [fetchUserProfile, logout, navigate]);
 
-  // Función para obtener el historial de entradas
-  const fetchEntryLogs = async () => {
-    try {
-      setIsLoadingLogs(true);
-      setErrorLogs(null);
-
-      const logs = await getUserEntryLogs();
-      setEntryLogs(logs);
-    } catch (error) {
-      console.error('Error al cargar historial de entradas:', error);
-      setErrorLogs('No se pudo cargar el historial de entradas.');
-    } finally {
-      setIsLoadingLogs(false);
-    }
-  };
-
-  // Función para registrar entrada al gimnasio
-  const handleRegisterEntry = async () => {
-    try {
-      setIsRegistering(true);
-      setRegistrationError(null);
-
-      // Llamar al endpoint para registrar entrada
-      await registerGymEntry();
-
-      // Cerrar modal de confirmación
-      setIsModalOpen(false);
-
-      // Refrescar historial de entradas para mostrar la nueva entrada
-      fetchEntryLogs();
-    } catch (error: any) {
-      console.error('Error al registrar entrada:', error);
-      setRegistrationError(
-        error.response?.data?.message ||
-          'No se pudo registrar la entrada. Inténtalo de nuevo.'
-      );
-    } finally {
-      setIsRegistering(false);
-    }
-  };
-
-  // Mostrar spinner mientras se carga el perfil
+  // Spinner de carga
   if (isLoadingProfile) {
     return (
       <div className="flex justify-center items-center h-full">
@@ -107,96 +69,86 @@ const Profile = () => {
     );
   }
 
-  // Mostrar mensaje de error si no se pudo cargar el perfil
+  // Mensaje de error
   if (!profile) {
     return (
       <div className="flex justify-center items-center h-full">
         <div
-          className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded"
+          className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded max-w-md"
           role="alert"
         >
           <p className="font-medium">No se pudo cargar el perfil.</p>
-          <p>Por favor, intenta recargar la página o contacta a soporte.</p>
+          <p className="mt-1">
+            {profileError || 'Por favor, intenta recargar la página.'}
+          </p>
+          <button
+            onClick={async () => {
+              try {
+                await fetchUserProfile();
+              } catch (error) {
+                // Los errores ya se manejan en el useEffect
+              }
+            }}
+            className="mt-3 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 w-full"
+          >
+            Intentar nuevamente
+          </button>
         </div>
       </div>
     );
   }
 
-  // Calcular diagnóstico IMC
-  const imcDiagnosis = profile.currentIMC
-    ? getImcDiagnose(profile.currentIMC)
-    : 'No se pudo calcular el diagnóstico del IMC.';
+  // Contenido específico según rol con tipado actualizado
+  const renderProfileContent = () => {
+    // Adaptamos el perfil al tipo esperado por los componentes
+    const userProfileData = {
+      ...profile,
+      // Aseguramos que los campos opcionales tengan valores por defecto
+      phone: profile.phone || null,
+      weight: profile.weight || 0,
+      height: profile.height || 0,
+      currentIMC: profile.currentIMC || null,
+      trainerName: profile.trainerName || null,
+      trainerEmail: profile.trainerEmail || null,
+    };
+
+    if (isRegularUser) {
+      return (
+        <UserProfileContent profile={userProfileData} userRole={userRole} />
+      );
+    } else if (isTrainer) {
+      return (
+        <TrainerProfileContent profile={userProfileData} userRole={userRole} />
+      );
+    } else if (isAdmin) {
+      return <AdminProfileContent profile={userProfileData} />;
+    }
+    return null;
+  };
 
   return (
     <main className="flex justify-center items-center h-full p-4 relative">
-      {/* Contenido principal */}
-      <section
-        className="w-full max-w-4xl bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6"
-        role="region"
-        aria-labelledby="profile-header"
-      >
-        <button
-          onClick={() => setIsEditModalOpen(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-          aria-label="Editar perfil"
-        >
-          <Edit size={18} />
-          <span>Editar Perfil</span>
-        </button>
-        <div className="flex-grow mb-9">
-          <ProfileHeader user={user} profile={profile} />
-        </div>
-
-        <BasicInfo profile={profile} />
-
-        <TrainerInfo
-          trainerName={profile.trainerName}
-          trainerEmail={profile.trainerEmail}
+      <section className="w-full max-w-4xl bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+        {/* Header con botón de edición */}
+        <ProfileHeader
+          profile={profile}
+          onEditClick={() => setIsProfileModalOpen(true)}
         />
 
-        <IMCDiagnosis diagnosis={imcDiagnosis} imc={profile.currentIMC} />
+        {/* Icono del rol */}
+        <ProfileRoleIcon userRole={userRole} />
 
-        <EntryLogSection
-          entryLogs={entryLogs}
-          isLoading={isLoadingLogs}
-          error={errorLogs}
-        />
-
-        {/* Mostrar error de registro si existe */}
-        {registrationError && (
-          <div
-            className="mt-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded"
-            role="alert"
-          >
-            <p>{registrationError}</p>
-          </div>
-        )}
+        {/* Contenido específico */}
+        {renderProfileContent()}
       </section>
 
-      {/* Botón flotante para registrar entrada */}
-      <FloatingActionButton
-        onClick={() => setIsModalOpen(true)}
-        label="Registrar entrada al gimnasio"
-        icon={<DoorOpen className="h-6 w-6" />}
-      />
-
-      {/* Modal de confirmación */}
-      <ConfirmationModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onConfirm={handleRegisterEntry}
-        title="Confirmar entrada al gimnasio"
-        message="¿Estás seguro de que quieres registrar tu entrada al gimnasio ahora?"
-        confirmText={isRegistering ? 'Registrando...' : 'Confirmar entrada'}
-        cancelText="Cancelar"
-      />
-
-      {/* Modal de edición de perfil */}
+      {/* Modal de edición */}
       {profile && (
         <ProfileEditModal
-          isOpen={isEditModalOpen}
-          onClose={() => setIsEditModalOpen(false)}
+          isOpen={isProfileModalOpen}
+          onClose={() => setIsProfileModalOpen(false)}
           profile={profile}
+          userRole={userRole}
         />
       )}
     </main>
