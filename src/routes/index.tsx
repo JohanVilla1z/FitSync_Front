@@ -1,27 +1,27 @@
-import { JSX, Suspense, lazy } from "react";
+import { JSX, Suspense, lazy } from 'react';
 import {
   Navigate,
   Route,
   BrowserRouter as Router,
   Routes,
-} from "react-router-dom";
-import Layout from "../components/layout/Layout";
-import LoadingFallback from "../components/ui/LoadingFallBack";
-import { Role } from "../constants/RolEnum";
-import { useAuthStore } from "../store/authStore";
-import { getHomePageByRole, isValidRole } from "../utils";
-import RoleBasedRoute, { AppRoute } from "./RoleBasedRoute";
+} from 'react-router-dom';
+import Layout from '../components/layout/Layout';
+import LoadingFallback from '../components/ui/LoadingFallBack';
+import { Role } from '../constants/RolEnum';
+import { useAuthStore } from '../store/authStore';
+import { getHomePageByRole, isValidRole } from '../utils';
+import RoleBasedRoute, { AppRoute } from './RoleBasedRoute';
 
 // Carga diferida de componentes
-const Dashboard = lazy(() => import("../pages/dashboard/Dashboard"));
-const Login = lazy(() => import("../pages/login/Login"));
-const Register = lazy(() => import("../pages/register/Register"));
-const Profile = lazy(() => import("../pages/profile/Profile"));
-const Trainers = lazy(() => import("../pages/trainers/Trainers"));
-const Unauthorized = lazy(() => import("../pages/Unauthorized"));
-const NotFound = lazy(() => import("../pages/NotFound"));
-const Users = lazy(() => import("../pages/users/Users"));
-const Equipment = lazy(() => import("../pages/equipment/Equipment"));
+const Dashboard = lazy(() => import('../pages/dashboard/Dashboard'));
+const Login = lazy(() => import('../pages/login/Login'));
+const Register = lazy(() => import('../pages/register/Register'));
+const Profile = lazy(() => import('../pages/profile/Profile'));
+const Trainers = lazy(() => import('../pages/trainers/Trainers'));
+const Unauthorized = lazy(() => import('../pages/Unauthorized'));
+const NotFound = lazy(() => import('../pages/NotFound'));
+const Users = lazy(() => import('../pages/users/Users'));
+const Equipment = lazy(() => import('../pages/equipment/Equipment'));
 // const Admin = lazy(() => import("../pages/Admin"));
 // Cuando crees las páginas Trainers y Admin, agrégalas aquí:
 
@@ -47,17 +47,17 @@ const DefaultRedirect = () => {
 // Definición de rutas con control de acceso basado en roles
 const routes: AppRoute[] = [
   {
-    path: "/dashboard",
+    path: '/dashboard',
     element: (
       <Layout>
         <Dashboard />
       </Layout>
     ),
     roles: [Role.ADMIN, Role.TRAINER],
-    redirectTo: "/profile",
+    redirectTo: '/profile',
   },
   {
-    path: "/profile",
+    path: '/profile',
     element: (
       <Layout>
         <Profile />
@@ -66,7 +66,7 @@ const routes: AppRoute[] = [
     roles: [Role.USER, Role.TRAINER, Role.ADMIN],
   },
   {
-    path: "/trainers",
+    path: '/trainers',
     element: (
       <Layout>
         <Trainers />
@@ -75,7 +75,7 @@ const routes: AppRoute[] = [
     roles: [Role.TRAINER, Role.ADMIN],
   },
   {
-    path: "/users",
+    path: '/users',
     element: (
       <Layout>
         <Users />
@@ -84,7 +84,7 @@ const routes: AppRoute[] = [
     roles: [Role.ADMIN, Role.TRAINER],
   },
   {
-    path: "/equipment",
+    path: '/equipment',
     element: (
       <Layout>
         <Equipment />
@@ -93,7 +93,7 @@ const routes: AppRoute[] = [
     roles: [Role.ADMIN, Role.TRAINER],
   },
   {
-    path: "/unauthorized",
+    path: '/unauthorized',
     element: (
       <Layout>
         <Unauthorized />
