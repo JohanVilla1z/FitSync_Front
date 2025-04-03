@@ -81,7 +81,7 @@ const routes: AppRoute[] = [
         <Users />
       </Layout>
     ), // Reemplazar con componente real cuando esté creado
-    roles: [Role.ADMIN],
+    roles: [Role.ADMIN, Role.TRAINER],
   },
   {
     path: "/equipment",
