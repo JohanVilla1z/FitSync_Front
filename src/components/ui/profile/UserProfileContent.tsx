@@ -8,10 +8,10 @@ import { useEntryLogs } from '../../../hooks/useEntryLogs';
 import { getImcDiagnose } from '../../../utils';
 import BasicInfo from '../BasicInfo';
 import ConfirmationModal from '../ConfirmationModal';
-import EntryLogSection from '../EntryLogSection';
 import FloatingActionButton from '../FloatingActionButton';
-import IMCDiagnosis from '../IMCDiagnosis';
 import TrainerInfo from '../TrainerInfo';
+import EntryLogSection from '../entryLogs/EntryLogSection';
+import IMCDiagnosis from './IMCDiagnosis';
 
 interface UserProfileContentProps {
   profile: User;
