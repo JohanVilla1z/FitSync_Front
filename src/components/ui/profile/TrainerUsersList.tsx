@@ -1,11 +1,12 @@
 import { RefreshCw, UserX } from 'lucide-react';
+import { toast } from 'react-toastify';
 import { Spinner } from '..';
-import { User } from '../../../store/useUserProfileStore';
+import { User } from '../../../constants/User';
 
 interface TrainerUsersListProps {
   users: User[];
   isLoading: boolean;
-  onRefresh: () => void;
+  onRefresh: () => Promise<void>;
 }
 
 const TrainerUsersList = ({
@@ -24,6 +25,15 @@ const TrainerUsersList = ({
       });
     } catch (e) {
       return 'Fecha inválida';
+    }
+  };
+
+  const handleRefresh = async () => {
+    try {
+      await onRefresh();
+    } catch (error) {
+      console.error('Error al actualizar la lista de usuarios:', error);
+      toast.error('No se pudo actualizar la lista de usuarios');
     }
   };
 
@@ -46,7 +56,7 @@ const TrainerUsersList = ({
           No tienes usuarios asignados actualmente
         </p>
         <button
-          onClick={onRefresh}
+          onClick={handleRefresh}
           className="mt-2 inline-flex items-center px-3 py-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded hover:bg-blue-100 dark:hover:bg-blue-800/50 transition-colors"
         >
           <RefreshCw className="h-4 w-4 mr-1" />
@@ -60,7 +70,7 @@ const TrainerUsersList = ({
     <div>
       <div className="flex justify-end mb-3">
         <button
-          onClick={onRefresh}
+          onClick={handleRefresh}
           className="inline-flex items-center text-sm px-3 py-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded hover:bg-blue-100 dark:hover:bg-blue-800/50 transition-colors"
         >
           <RefreshCw className="h-4 w-4 mr-1" />
@@ -130,7 +140,7 @@ const TrainerUsersList = ({
                   </span>
                 </td>
                 <td className="px-4 py-3 whitespace-nowrap text-sm">
-                  {user.currentIMC
+                  {user.currentIMC && !isNaN(user.currentIMC)
                     ? user.currentIMC.toFixed(1)
                     : 'No disponible'}
                 </td>
