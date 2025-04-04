@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import axiosInstance from '../../../api/axiosInstance';
 import { useUsersStore } from '../../../store';
@@ -10,24 +10,69 @@ interface TrainerProfileContentProps {
   userRole: string;
 }
 
-const TrainerProfileContent = ({
-  profile,
-}: TrainerProfileContentProps) => {
+const TrainerProfileContent = ({ profile }: TrainerProfileContentProps) => {
   const [trainerUsers, setTrainerUsers] = useState<User[]>([]);
   const [isLoadingUsers, setIsLoadingUsers] = useState(false);
 
-  // Obtener el store de usuarios
+  // Simplificar acceso al store
   const { users, fetchUsers } = useUsersStore();
 
-  // Función para obtener usuarios directamente de la API si es necesario
-  const fetchTrainerUsersDirectly = async (trainerId: number) => {
-    try {
-      const response = await axiosInstance.get<any[]>(
-        `/api/trainers/${trainerId}/users`
-      );
+  // Función refactorizada para cargar usuarios, usa useCallback para evitar recreaciones
+  const loadUsersData = useCallback(async () => {
+    if (!profile?.id) return;
 
-      // Procesar los datos para adaptarlos a nuestro formato
-      return response.data.map((user) => ({
+    setIsLoadingUsers(true);
+    try {
+      // Estrategia 1: Usar datos ya procesados si están disponibles
+      if (profile.usersList && profile.usersList.length > 0) {
+        setTrainerUsers(profile.usersList);
+        return;
+      }
+
+      // Estrategia 2: Procesar datos del perfil si están disponibles
+      if (profile.users && profile.users.length > 0) {
+        const processedUsers = profile.users.map((user) => ({
+          id: user.id,
+          name: user.name,
+          lastName: user.userLastName || '',
+          email: user.email,
+          role: user.role || 'USER',
+          isActive: user.isActive,
+          registerDate: user.registerDate,
+          phone: user.userPhone,
+          weight: user.userWeight,
+          height: user.userHeight,
+          currentIMC: user.currentIMC,
+        }));
+        setTrainerUsers(processedUsers);
+        return;
+      }
+
+      // Estrategia 3: Filtrar del store de usuarios si tenemos IDs
+      if (profile.userIds && profile.userIds.length > 0) {
+        // Si no hay usuarios en el store o faltan algunos, cargarlos primero
+        if (
+          !users.length ||
+          users.filter((u) => profile.userIds?.includes(u.id)).length !==
+            profile.userIds.length
+        ) {
+          await fetchUsers();
+        }
+
+        const filteredUsers = users.filter((user) =>
+          profile.userIds?.includes(user.id)
+        );
+        if (filteredUsers.length > 0) {
+          setTrainerUsers(filteredUsers);
+          return;
+        }
+      }
+
+      // Estrategia 4: Cargar directamente de la API como último recurso
+      const response = await axiosInstance.get<any[]>(
+        `/trainers/${profile.id}/users`
+      );
+      const directUsers = response.data.map((user) => ({
         id: user.id,
         name: user.name,
         lastName: user.userLastName || '',
@@ -40,124 +85,45 @@ const TrainerProfileContent = ({
         height: user.userHeight,
         currentIMC: user.currentIMC,
       }));
+
+      setTrainerUsers(directUsers);
     } catch (error) {
-      console.error('Error al obtener usuarios del entrenador:', error);
-      return [];
+      console.error('Error al cargar usuarios del entrenador:', error);
+      toast.error('No se pudieron cargar los usuarios asignados');
+    } finally {
+      setIsLoadingUsers(false);
     }
-  };
-
-  useEffect(() => {
-    const loadUsersData = async () => {
-      try {
-        setIsLoadingUsers(true);
-
-        // Si ya tenemos la lista procesada en el perfil, usarla directamente
-        if (profile.usersList && profile.usersList.length > 0) {
-          console.log(
-            'Usando usuarios procesados del perfil:',
-            profile.usersList.length
-          );
-          setTrainerUsers(profile.usersList);
-          setIsLoadingUsers(false);
-          return;
-        }
-
-        // Si tenemos los datos originales, procesarlos
-        if (profile.users && profile.users.length > 0) {
-          console.log('Procesando usuarios del perfil');
-          const processedUsers = profile.users.map((user) => ({
-            id: user.id,
-            name: user.name,
-            lastName: user.userLastName || '',
-            email: user.email,
-            role: user.role || 'USER',
-            isActive: user.isActive,
-            registerDate: user.registerDate,
-            phone: user.userPhone,
-            weight: user.userWeight,
-            height: user.userHeight,
-            currentIMC: user.currentIMC,
-          }));
-          setTrainerUsers(processedUsers);
-          setIsLoadingUsers(false);
-          return;
-        }
-
-        // Si tenemos IDs de usuarios pero no detalles, buscar en el store
-        if (profile.userIds && profile.userIds.length > 0) {
-          // Verificar si ya tenemos estos usuarios en el store
-          if (users && users.length > 0) {
-            // Filtrar los usuarios que pertenecen al entrenador
-            const userDetails = users.filter((user) =>
-              profile.userIds?.includes(user.id)
-            );
-
-            console.log('Usuarios encontrados en store:', userDetails.length);
-
-            // Si tenemos todos los usuarios en el store, los usamos
-            if (userDetails.length === profile.userIds.length) {
-              setTrainerUsers(userDetails);
-              setIsLoadingUsers(false);
-              return;
-            }
-          }
-
-          // Si no tenemos todos los usuarios en el store o el store está vacío
-          await fetchUsers();
-
-          // Filtrar usuarios después de cargarlos
-          const userDetails = users.filter((user) =>
-            profile.userIds?.includes(user.id)
-          );
-
-          setTrainerUsers(userDetails);
-        }
-
-        // Último recurso: obtener directamente de la API
-        if (trainerUsers.length === 0) {
-          console.log('Intentando obtener usuarios directamente de la API');
-          const directUsers = await fetchTrainerUsersDirectly(profile.id);
-          if (directUsers.length > 0) {
-            setTrainerUsers(directUsers);
-          }
-        }
-      } catch (error) {
-        console.error('Error al cargar usuarios del entrenador:', error);
-        toast.error('No se pudieron cargar los usuarios asignados');
-      } finally {
-        setIsLoadingUsers(false);
-      }
-    };
-
-    loadUsersData();
   }, [profile, users, fetchUsers]);
 
-  // Función para refrescar manualmente la lista de usuarios
+  // Cargar datos cuando cambia el perfil
+  useEffect(() => {
+    loadUsersData();
+  }, [loadUsersData]);
+
+  // Función simplificada para refrescar manualmente la lista
   const handleRefreshUsers = async () => {
+    setIsLoadingUsers(true);
     try {
-      setIsLoadingUsers(true);
+      // Cargar directamente de la API para datos frescos
+      const response = await axiosInstance.get<any[]>(
+        `/trainers/${profile.id}/users`
+      );
+      const freshUsers = response.data.map((user) => ({
+        id: user.id,
+        name: user.name,
+        lastName: user.userLastName || '',
+        email: user.email,
+        role: user.role || 'USER',
+        isActive: user.isActive,
+        registerDate: user.registerDate,
+        phone: user.userPhone,
+        weight: user.userWeight,
+        height: user.userHeight,
+        currentIMC: user.currentIMC,
+      }));
 
-      // Obtener directamente de la API para asegurarnos de tener datos frescos
-      const directUsers = await fetchTrainerUsersDirectly(profile.id);
-      if (directUsers.length > 0) {
-        setTrainerUsers(directUsers);
-        toast.success('Lista de usuarios actualizada');
-        return;
-      }
-
-      // Si no podemos obtener directamente, intentar a través del store
-      await fetchUsers();
-
-      // Si tenemos IDs de usuarios, filtrar del store
-      if (profile.userIds && profile.userIds.length > 0) {
-        const userDetails = users.filter((user) =>
-          profile.userIds?.includes(user.id)
-        );
-        setTrainerUsers(userDetails);
-        toast.success('Lista de usuarios actualizada');
-      } else {
-        toast.warning('No se encontraron usuarios para este entrenador');
-      }
+      setTrainerUsers(freshUsers);
+      toast.success('Lista de usuarios actualizada');
     } catch (error) {
       console.error('Error al refrescar usuarios:', error);
       toast.error('No se pudo actualizar la lista de usuarios');
@@ -166,7 +132,7 @@ const TrainerProfileContent = ({
     }
   };
 
-  // Renderizar información básica del entrenador (no usar BasicInfo)
+  // Renderizar información del entrenador (sin cambios)
   const renderTrainerInfo = () => (
     <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
       <div className="space-y-4">
@@ -222,7 +188,6 @@ const TrainerProfileContent = ({
 
   return (
     <div className="space-y-6">
-      {/* Mostramos información específica para entrenadores en lugar de BasicInfo */}
       {renderTrainerInfo()}
 
       <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
