@@ -1,5 +1,5 @@
 import { Box, Clock, Edit } from 'lucide-react';
-import { EntryLog } from '../../constants/entryLog';
+import { EntryLog } from '../../../constants';
 
 interface EntryLogTableProps {
   isLoading: boolean;
