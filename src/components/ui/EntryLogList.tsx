@@ -1,29 +1,26 @@
-import { useEffect, useState } from 'react';
-import axiosInstance from '../../api/axiosInstance';
-import { EntryLog } from '../../constants/entryLog';
+import { useEffect } from 'react';
+import { Role } from '../../constants';
+import { useAuthStore } from '../../store/authStore';
+import { useEntryLogStore } from '../../store/useEntryLogStore';
 import EntryLogTable from './EntryLogTable';
 
 const EntryLogList = () => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [entryLogs, setEntryLogs] = useState<EntryLog[]>([]);
+  const { entryLogs, isLoading, fetchEntryLogs } = useEntryLogStore();
+  const { user } = useAuthStore();
+
+  const isAdmin = user?.role?.includes(Role.ADMIN);
 
   useEffect(() => {
-    const fetchEntryLogs = async () => {
-      try {
-        setIsLoading(true);
-        const response = await axiosInstance.get<EntryLog[]>('/entry-logs/all');
-        setEntryLogs(response.data);
-      } catch (error) {
-        console.error('Error fetching entry logs:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    if (entryLogs.length === 0) {
+      fetchEntryLogs(isAdmin);
+    }
+  }, [entryLogs.length, fetchEntryLogs, isAdmin]);
 
-    fetchEntryLogs();
-  }, []);
-
-  return <EntryLogTable isLoading={isLoading} entryLogs={entryLogs} />;
+  return (
+    <div>
+      <EntryLogTable isLoading={isLoading} entryLogs={entryLogs} />
+    </div>
+  );
 };
 
 export default EntryLogList;
