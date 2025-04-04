@@ -1,5 +1,6 @@
 import { DoorOpen } from 'lucide-react';
 import { useState } from 'react';
+import { toast } from 'react-toastify';
 import { Role } from '../../../constants';
 import { User } from '../../../constants/User';
 import { EntryLog } from '../../../constants/entryLog';
@@ -12,28 +13,31 @@ import FloatingActionButton from '../FloatingActionButton';
 import IMCDiagnosis from '../IMCDiagnosis';
 import TrainerInfo from '../TrainerInfo';
 
-// Definimos explícitamente las props
 interface UserProfileContentProps {
   profile: User;
   userRole: string;
 }
 
-// Exportamos de forma predeterminada
-export default function UserProfileContent({
-  profile,
-  userRole,
-}: UserProfileContentProps) {
+function UserProfileContent({ profile, userRole }: UserProfileContentProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Valores por defecto para los datos de entry logs
   const defaultEntryLogsData = {
     entryLogs: [] as EntryLog[],
     isLoadingLogs: false,
-    errorLogs: null as string | null,
+    errorLogs: null as null | { message: string },
     isRegistering: false,
-    registrationError: null as string | null,
+    registrationError: null as null | { message: string },
     registerEntry: async () => false,
-    fetchEntryLogs: async () => {},
+    fetchEntryLogs: async () => [] as EntryLog[],
+    isSuccess: false,
+    todayEntries: 0,
+    yesterdayEntries: 0,
+    isAdminView: false,
+    canAccessAdminView: false,
+    clearRegistrationError: () => {},
+    clearLogsError: () => {},
+    toggleAdminView: () => {},
   };
 
   // Usar el hook personalizado solo si es usuario regular
@@ -47,69 +51,88 @@ export default function UserProfileContent({
     isRegistering,
     registrationError,
     registerEntry,
+    clearRegistrationError,
   } = entryLogsData;
 
-  // Función para manejar el registro de entrada con verificación
   const handleRegisterEntry = async () => {
     if (userRole === Role.USER && registerEntry) {
-      const success = await registerEntry();
-      if (success) {
-        setIsModalOpen(false);
+      try {
+        clearRegistrationError();
+
+        const success = await registerEntry();
+
+        if (success) {
+          setIsModalOpen(false);
+          toast.success('Entrada registrada correctamente');
+        }
+      } catch (error) {
+        console.error('Error al registrar entrada:', error);
       }
     }
+  };
+
+  const formatErrorMessage = (error: any): string => {
+    if (!error) return '';
+    if (typeof error === 'string') return error;
+    if (error.message && typeof error.message === 'string')
+      return error.message;
+    return 'Error desconocido';
   };
 
   return (
     <div className="space-y-6">
       <BasicInfo profile={profile} />
 
-      {userRole === Role.USER && (
-        <>
-          <TrainerInfo
-            trainerName={profile.trainerName}
-            trainerEmail={profile.trainerEmail}
-          />
-
-          {profile.currentIMC && (
-            <IMCDiagnosis
-              diagnosis={getImcDiagnose(profile.currentIMC)}
-              imc={profile.currentIMC}
-            />
-          )}
-
-          <EntryLogSection
-            entryLogs={entryLogs}
-            isLoading={isLoadingLogs}
-            error={errorLogs}
-          />
-
-          {registrationError && (
-            <div
-              className="mt-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded"
-              role="alert"
-            >
-              <p>{registrationError}</p>
-            </div>
-          )}
-
-          {/* UI para registro de entrada */}
-          <FloatingActionButton
-            onClick={() => setIsModalOpen(true)}
-            label="Registrar entrada al gimnasio"
-            icon={<DoorOpen className="h-6 w-6" />}
-          />
-
-          <ConfirmationModal
-            isOpen={isModalOpen}
-            onClose={() => setIsModalOpen(false)}
-            onConfirm={handleRegisterEntry}
-            title="Confirmar entrada al gimnasio"
-            message="¿Estás seguro de que quieres registrar tu entrada al gimnasio ahora?"
-            confirmText={isRegistering ? 'Registrando...' : 'Confirmar entrada'}
-            cancelText="Cancelar"
-          />
-        </>
+      {(profile.trainerName || profile.trainerEmail) && (
+        <TrainerInfo
+          trainerName={profile.trainerName || ''}
+          trainerEmail={profile.trainerEmail || ''}
+        />
       )}
+
+      {profile.currentIMC && (
+        <IMCDiagnosis
+          diagnosis={getImcDiagnose(profile.currentIMC)}
+          imc={profile.currentIMC}
+        />
+      )}
+
+      <EntryLogSection
+        entryLogs={entryLogs}
+        isLoading={isLoadingLogs}
+        error={errorLogs ? formatErrorMessage(errorLogs) : null}
+      />
+
+      {registrationError && (
+        <div
+          className="mt-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded"
+          role="alert"
+        >
+          <p>{formatErrorMessage(registrationError)}</p>
+        </div>
+      )}
+
+      {userRole === Role.USER && (
+        <FloatingActionButton
+          onClick={() => setIsModalOpen(true)}
+          label="Registrar entrada al gimnasio"
+          icon={<DoorOpen className="h-6 w-6" />}
+          disabled={isRegistering}
+        />
+      )}
+
+      <ConfirmationModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={handleRegisterEntry}
+        title="Confirmar entrada al gimnasio"
+        message="¿Estás seguro de que quieres registrar tu entrada al gimnasio ahora?"
+        confirmText={isRegistering ? 'Registrando...' : 'Confirmar entrada'}
+        cancelText="Cancelar"
+        isDisabled={isRegistering}
+      />
     </div>
   );
 }
+
+export default UserProfileContent;
