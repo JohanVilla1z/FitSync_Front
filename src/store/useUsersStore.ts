@@ -70,8 +70,6 @@ export const useUsersStore = create<UserState>()(
             lastFetched: Date.now(),
           });
 
-          console.log('Usuarios actualizados:', response.data.length);
-
           // Calcular estadísticas después de obtener usuarios
           const currentState = get();
           if (currentState && currentState.fetchUserStats) {
@@ -216,17 +214,10 @@ export const useUsersStore = create<UserState>()(
             dataToSend.weight = Number(dataToSend.weight);
           }
 
-          console.log(
-            'Datos a enviar para actualización de usuario:',
-            dataToSend
-          );
-
           const response = await axiosInstance.put<User>(
             `/user/${updatedUser.id}`,
             dataToSend
           );
-
-          console.log('Respuesta del servidor:', response.data);
 
           // Actualizar el usuario en el estado
           set((state) => ({
@@ -241,7 +232,6 @@ export const useUsersStore = create<UserState>()(
           // Recalcular estadísticas después de actualizar un usuario
           get().fetchUserStats();
 
-          console.log('Response from server after update:', response.data);
           return response.data;
         } catch (error: any) {
           console.error('Error detallado al actualizar el usuario:', {
