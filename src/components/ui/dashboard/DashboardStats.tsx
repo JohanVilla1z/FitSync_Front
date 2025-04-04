@@ -1,22 +1,42 @@
 import { Activity, Clock, Users } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { Role } from '../../../constants';
+import { useAuthStore } from '../../../store/authStore';
 import { useEntryLogStore } from '../../../store/useEntryLogStore';
-import { useTrainersStore } from '../../../store/useTrainersStore';
 import { useUsersStore } from '../../../store/useUsersStore';
 import { StatCard } from './StatCard';
 
 export const DashboardStats = () => {
   const [entryTrend, setEntryTrend] = useState({
-    value: 'N/A',
+    value: '0%',
     isPositive: true,
-    label: 'sin datos previos',
+    label: 'sin cambios',
   });
+
+  const [userActiveTrend, setUserActiveTrend] = useState({
+    value: '0%',
+    isPositive: true,
+    label: 'sin cambios',
+  });
+
+  const [retentionTrend, setRetentionTrend] = useState({
+    value: '0%',
+    isPositive: true,
+    label: 'sin cambios',
+  });
+
   const [retentionRate, setRetentionRate] = useState(0);
 
-  const isAdmin = true;
+  const { user } = useAuthStore();
+  const isAdmin = user?.role?.includes(Role.ADMIN);
 
-  const { userStats, fetchUsers, isLoading: isLoadingUsers } = useUsersStore();
-  const { fetchTrainers } = useTrainersStore();
+  const {
+    users,
+    userStats,
+    fetchUsers,
+    isLoading: isLoadingUsers,
+  } = useUsersStore();
+
   const {
     entryLogs,
     todayEntries,
@@ -29,11 +49,7 @@ export const DashboardStats = () => {
   useEffect(() => {
     const loadData = async () => {
       try {
-        await Promise.all([
-          fetchUsers(),
-          fetchTrainers(),
-          fetchEntryLogs(isAdmin),
-        ]);
+        await Promise.all([fetchUsers(), fetchEntryLogs(isAdmin)]);
 
         refreshStats();
       } catch (error) {
@@ -42,7 +58,7 @@ export const DashboardStats = () => {
     };
 
     loadData();
-  }, [fetchUsers, fetchTrainers, fetchEntryLogs, refreshStats, isAdmin]);
+  }, [fetchUsers, fetchEntryLogs, refreshStats, isAdmin]);
 
   useEffect(() => {
     if (yesterdayEntries === 0) {
@@ -75,24 +91,82 @@ export const DashboardStats = () => {
   useEffect(() => {
     if (!userStats || isLoadingUsers) return;
 
-    if (userStats.total === 0) {
-      setRetentionRate(0);
-    } else {
-      setRetentionRate(Math.round((userStats.active / userStats.total) * 100));
+    if (userStats.total > 0) {
+      const currentRetention = Math.round(
+        (userStats.active / userStats.total) * 100
+      );
+      setRetentionRate(currentRetention);
     }
-  }, [userStats, isLoadingUsers]);
 
-  const userActiveTrend = {
-    value: '12%',
-    isPositive: true,
-    label: 'vs mes anterior',
-  };
+    if (entryLogs.length > 0 && users.length > 0) {
+      const lastWeek = new Date();
+      lastWeek.setDate(lastWeek.getDate() - 7);
 
-  const retentionTrend = {
-    value: '3%',
-    isPositive: true,
-    label: 'vs mes anterior',
-  };
+      const recentActiveUserIds = new Set();
+      entryLogs.forEach((log) => {
+        const logDate = new Date(log.timestamp);
+        if (logDate >= lastWeek) {
+          recentActiveUserIds.add(log.userName);
+        }
+      });
+
+      const recentActiveCount = recentActiveUserIds.size;
+      const totalActiveUsers = userStats.active;
+
+      if (totalActiveUsers > 0 && recentActiveCount > 0) {
+        const activeChange = (
+          (recentActiveCount / totalActiveUsers) *
+          100
+        ).toFixed(0);
+
+        setUserActiveTrend({
+          value: `${activeChange}%`,
+          isPositive: true,
+          label: 'activos recientes',
+        });
+      }
+    }
+
+    if (entryLogs.length > 0) {
+      const today = new Date();
+      const oneWeekAgo = new Date(today);
+      oneWeekAgo.setDate(today.getDate() - 7);
+      const twoWeeksAgo = new Date(today);
+      twoWeeksAgo.setDate(today.getDate() - 14);
+
+      const currentPeriodUsers = new Set();
+      const previousPeriodUsers = new Set();
+
+      entryLogs.forEach((log) => {
+        const logDate = new Date(log.timestamp);
+        if (logDate >= oneWeekAgo) {
+          currentPeriodUsers.add(log.userName);
+        } else if (logDate >= twoWeeksAgo && logDate < oneWeekAgo) {
+          previousPeriodUsers.add(log.userName);
+        }
+      });
+
+      if (previousPeriodUsers.size > 0) {
+        let returnedUsers = 0;
+        previousPeriodUsers.forEach((userId) => {
+          if (currentPeriodUsers.has(userId)) {
+            returnedUsers++;
+          }
+        });
+
+        const previousRetentionRate = Math.round(
+          (returnedUsers / previousPeriodUsers.size) * 100
+        );
+        const retentionChange = retentionRate - previousRetentionRate;
+
+        setRetentionTrend({
+          value: `${Math.abs(retentionChange)}%`,
+          isPositive: retentionChange >= 0,
+          label: 'vs semana anterior',
+        });
+      }
+    }
+  }, [userStats, isLoadingUsers, entryLogs, users, retentionRate]);
 
   return (
     <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
