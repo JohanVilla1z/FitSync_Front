@@ -79,12 +79,6 @@ const ProfileEditModal = ({
               <X className="h-5 w-5" />
             </button>
           </div>
-
-          {/* Descripción como hijo directo de DialogHeader */}
-          <DialogDescription className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-            Actualiza tu información personal y contraseña para mantener tu
-            cuenta al día.
-          </DialogDescription>
         </DialogHeader>
 
         <div className="px-6 pb-6">
