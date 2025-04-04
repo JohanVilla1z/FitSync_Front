@@ -10,7 +10,6 @@ export const getUserEntryLogs = async (): Promise<EntryLog[]> => {
     const response = await axiosInstance.get<EntryLog[]>(
       '/entry-logs/user-history'
     );
-    console.log('Datos de entrada de usuario obtenidos:', response.data.length);
     return response.data;
   } catch (error: any) {
     console.error('Error al obtener historial de entradas del usuario:', error);
@@ -25,10 +24,6 @@ export const getUserEntryLogs = async (): Promise<EntryLog[]> => {
 export const getAllEntryLogs = async (): Promise<EntryLog[]> => {
   try {
     const response = await axiosInstance.get<EntryLog[]>('/entry-logs/all');
-    console.log(
-      'Todos los registros de entrada obtenidos:',
-      response.data.length
-    );
     return response.data;
   } catch (error: any) {
     console.error('Error al obtener todos los registros de entrada:', error);
