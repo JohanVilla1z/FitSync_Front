@@ -1,3 +1,4 @@
+import { toast } from 'react-toastify';
 import { User } from '../../constants/User';
 import { useUsersStore } from '../../store/useUsersStore';
 import UserActions from './UserActions';
@@ -12,8 +13,10 @@ const UserTable = ({ users }: UserTableProps) => {
   const handleToggleStatus = async (userId: number) => {
     try {
       await toggleUserActivity(userId);
+      toast.success('Estado del usuario actualizado correctamente');
     } catch (error) {
       console.error('Error al cambiar el estado del usuario:', error);
+      toast.error('No se pudo actualizar el estado del usuario');
     }
   };
 
@@ -44,7 +47,7 @@ const UserTable = ({ users }: UserTableProps) => {
         </thead>
         <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-900 dark:divide-gray-700">
           {users.map((user) => (
-            <tr key={user.id}>
+            <tr key={user.email}>
               <td className="px-6 py-4 whitespace-nowrap">
                 <div className="flex items-center">
                   <div>
