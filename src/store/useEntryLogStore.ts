@@ -36,9 +36,7 @@ export const useEntryLogStore = create<EntryLogState>()(
       fetchEntryLogs: async (isAdmin = false) => {
         set({ isLoading: true, error: null });
         try {
-          const logs = isAdmin
-            ? await entryLogService.getAllEntryLogs()
-            : await entryLogService.getUserEntryLogs();
+          const logs = await entryLogService.getAllEntryLogs();
 
           set({
             entryLogs: logs,
@@ -148,14 +146,6 @@ export const useEntryLogStore = create<EntryLogState>()(
         ).length;
 
         set({ todayEntries: todayCount, yesterdayEntries: yesterdayCount });
-
-        console.log({
-          message: 'Estadísticas de entradas actualizadas en el store',
-          totalLogs: entryLogs.length,
-          todayEntries: todayCount,
-          yesterdayEntries: yesterdayCount,
-          isAdminView: get().isAdminView,
-        });
       },
     }),
     { name: 'entry-logs-store' }
