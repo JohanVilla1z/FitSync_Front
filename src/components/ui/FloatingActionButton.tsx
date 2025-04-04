@@ -5,6 +5,7 @@ interface FloatingActionButtonProps {
   icon?: React.ReactNode;
   label: string;
   position?: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
+  disabled?: boolean;
 }
 
 const positionClasses = {
@@ -19,13 +20,19 @@ const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({
   icon,
   label,
   position = 'bottom-right',
+  disabled = false,
 }) => {
   return (
     <button
       onClick={onClick}
-      className={`fixed ${positionClasses[position]} z-40 flex items-center justify-center p-4 text-white bg-primary hover:bg-primary-dark rounded-full shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary`}
+      className={`fixed ${positionClasses[position]} z-40 flex items-center justify-center p-4 text-white ${
+        disabled
+          ? 'bg-gray-400 cursor-not-allowed'
+          : 'bg-primary hover:bg-primary-dark'
+      } rounded-full shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary`}
       aria-label={label}
       title={label}
+      disabled={disabled}
     >
       {icon || (
         <svg
