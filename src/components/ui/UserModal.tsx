@@ -57,10 +57,6 @@ const UserModal = ({ isOpen, onClose, user }: UserModalProps) => {
     setIsSubmitting(true);
     try {
       if (user) {
-        // Editar usuario existente
-        console.log('Datos del formulario para actualización:', data);
-
-        // Crear objeto limpio para actualización
         const userToUpdate: User = {
           ...data,
           height:
