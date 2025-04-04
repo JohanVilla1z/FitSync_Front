@@ -7,6 +7,7 @@ interface ConfirmationModalProps {
   onConfirm: () => void;
   onCancel?: () => void;
   onClose?: () => void;
+  isDisabled?: boolean;
 }
 
 const ConfirmationModal = ({
@@ -18,6 +19,7 @@ const ConfirmationModal = ({
   onConfirm,
   onCancel,
   onClose,
+  isDisabled = false, // Valor por defecto
 }: ConfirmationModalProps) => {
   if (!isOpen) return null;
 
@@ -40,12 +42,18 @@ const ConfirmationModal = ({
           <button
             onClick={handleCancel}
             className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+            disabled={isDisabled}
           >
             {cancelText}
           </button>
           <button
             onClick={onConfirm}
-            className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+            className={`px-4 py-2 text-white rounded ${
+              isDisabled
+                ? 'bg-red-400 cursor-not-allowed'
+                : 'bg-red-500 hover:bg-red-600'
+            }`}
+            disabled={isDisabled}
           >
             {confirmText}
           </button>
