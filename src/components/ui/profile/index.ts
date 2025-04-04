@@ -1,5 +1,6 @@
 export * from './AdminDashboardCards';
 export * from './AdminProfileContent';
+export * from './IMCDiagnosis';
 export * from './PasswordChangeModal';
 export * from './ProfileEditModal';
 export * from './ProfileHeader';
