@@ -31,8 +31,8 @@ const Sidebar = () => {
   return (
     <aside
       className={cn(
-        'flex flex-col top-0 left-0 min-h-screen bg-gray-900 text-white transition-all duration-300',
-        'dark:bg-background-dark dark:text-gray-200', // Clases para tema oscuro
+        'fixed top-0 left-0 min-h-screen bg-gray-900 text-white transition-width duration-300',
+        'dark:bg-background-dark dark:text-gray-200 ', // Clases para tema oscuro
         isCollapsed ? 'w-14' : 'w-64'
       )}
     >

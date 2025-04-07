@@ -15,7 +15,7 @@ const NavBar = () => {
   };
 
   return (
-    <nav className="flex items-center justify-between p-4 bg-background shadow-md dark:bg-background-dark dark:text-white">
+    <nav className="fixed top-0 left-14 right-0 z-10 flex items-center justify-between p-4 bg-background shadow-md bg-background-dark text-white">
       {/* Logo - Redirige según el rol */}
       <Link
         to={getHomePageByRole(user?.role ?? Role.USER)}
@@ -26,7 +26,7 @@ const NavBar = () => {
           alt="FitSync"
           className="h-8"
         />
-        <p className="dark:text-white">FitSync</p>
+        <p className="text-white">FitSync</p>
       </Link>
 
       <div className="flex items-center gap-4">
@@ -43,7 +43,7 @@ const NavBar = () => {
           <img
             src={getAvatarByRole(user?.role)}
             alt="Avatar"
-            className="h-8 w-8 p-0.5 rounded-full dark:bg-white"
+            className="h-8 w-8 p-0.5 rounded-full bg-white"
           />
         </Link>
 
