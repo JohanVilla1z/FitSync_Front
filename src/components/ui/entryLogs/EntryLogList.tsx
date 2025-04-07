@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
-import { Role } from '../../constants';
-import { useAuthStore } from '../../store/authStore';
-import { useEntryLogStore } from '../../store/useEntryLogStore';
+import { Role } from '../../../constants';
+import { useAuthStore, useEntryLogStore } from '../../../store';
 import EntryLogTable from './EntryLogTable';
 
 const EntryLogList = () => {

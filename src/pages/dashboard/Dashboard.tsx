@@ -1,6 +1,6 @@
 import { BarChart2, Clock } from 'lucide-react';
-import EntryLogList from '../../components/ui/EntryLogList';
 import { DashboardStats } from '../../components/ui/dashboard/DashboardStats';
+import EntryLogList from '../../components/ui/entryLogs/EntryLogList';
 
 function Dashboard() {
   return (
