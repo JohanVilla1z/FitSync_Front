@@ -3,6 +3,7 @@ export * from './auth/authUser';
 export * from './auth/registerForm';
 export * from './entryLog';
 export * from './equipment';
+export * from './loan';
 export * from './RolEnum';
 export * from './Trainer';
 export * from './User';
