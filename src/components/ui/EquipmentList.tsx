@@ -22,7 +22,7 @@ const EquipmentList = () => {
   return (
     <div>
       <section className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-        <h2 className="text-xl font-semibold">Lista de Equipos</h2>
+        <h2 className="text-2xl font-semibold">Lista de Equipos</h2>
         <div className="relative w-full md:w-1/4">
           <Search
             className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
