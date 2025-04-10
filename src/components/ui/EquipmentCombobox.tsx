@@ -29,7 +29,7 @@ export const EquipmentCombobox = ({
   const safeEquipment = Array.isArray(equipment) ? equipment : [];
 
   const availableEquipment = safeEquipment.filter(
-    (item) => item.available === true
+    (item) => item.status === 'AVAILABLE'
   );
 
   const filteredEquipment = availableEquipment.filter((item) => {
