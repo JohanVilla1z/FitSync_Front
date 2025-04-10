@@ -3,6 +3,7 @@ export * from './Button';
 export * from './Card';
 export * from './ConfirmationModal';
 export * from './entryLogs';
+export * from './EquipmentCombobox';
 export * from './EquipmentList';
 export * from './EquipmentTable';
 export * from './FloatingActionButton';
