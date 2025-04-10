@@ -13,5 +13,6 @@ export * from './profile';
 export * from './Spinner';
 export * from './StatsCards';
 export * from './TrainerInfo';
+export * from './UserCombobox';
 export * from './UserList';
 export * from './UserTable';
