@@ -13,7 +13,6 @@ interface EquipmentState {
     unavailable: number;
   };
 
-  // Acciones
   fetchEquipment: () => Promise<void>;
   createEquipment: (newEquipment: Omit<Equipment, 'id'>) => Promise<void>;
   updateEquipment: (updatedEquipment: Equipment) => Promise<void>;
