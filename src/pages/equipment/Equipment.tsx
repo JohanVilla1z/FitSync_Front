@@ -1,5 +1,6 @@
 import { Box, Plus } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
 import EquipmentList from '../../components/ui/EquipmentList';
 import EquipmentModal from '../../components/ui/EquipmentModal';
 import StatsCards, { StatItem } from '../../components/ui/StatsCards';
@@ -14,8 +15,11 @@ const Equipment = () => {
     useEquipmentStore();
 
   useEffect(() => {
-    fetchEquipment();
-    fetchEquipmentStats();
+    const updateData = async () => {
+      await fetchEquipment();
+      await fetchEquipmentStats();
+    };
+    updateData();
   }, [fetchEquipment, fetchEquipmentStats]);
 
   const statsCards: StatItem[] = [
@@ -40,6 +44,20 @@ const Equipment = () => {
       color: 'red' as const,
     },
   ];
+
+  const handleOpenLoanModal = () => {
+    fetchEquipment().then(() => {
+      fetchEquipmentStats().then(() => {
+        const availableCount = equipmentStats?.available || 0;
+
+        if (availableCount === 0) {
+          toast.info('No hay equipos disponibles para préstamo');
+        } else {
+          setIsLoanModalOpen(true);
+        }
+      });
+    });
+  };
 
   return (
     <main className="container mx-auto">
@@ -87,9 +105,15 @@ const Equipment = () => {
             Préstamos
           </h2>
           <button
-            onClick={() => setIsLoanModalOpen(true)}
-            className="flex items-center gap-1 px-3 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500"
+            onClick={handleOpenLoanModal}
+            className="flex items-center gap-1 px-3 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
             aria-label="Crear nuevo préstamo"
+            disabled={equipmentStats && equipmentStats.available === 0}
+            title={
+              equipmentStats?.available === 0
+                ? 'No hay equipos disponibles para préstamo'
+                : 'Crear nuevo préstamo'
+            }
           >
             <Plus size={18} aria-hidden="true" />
             <span>Crear Préstamo</span>
