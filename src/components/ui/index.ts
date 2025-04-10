@@ -8,6 +8,7 @@ export * from './EquipmentTable';
 export * from './FloatingActionButton';
 export * from './input';
 export * from './LoadingFallBack';
+export * from './popover';
 export * from './profile';
 export * from './Spinner';
 export * from './StatsCards';
