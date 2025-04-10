@@ -41,6 +41,7 @@ export const useEquipmentStore = create<EquipmentState>((set) => ({
       const response = await axiosInstance.get<Equipment[]>('/equipment');
       set({ equipment: response.data, isLoading: false });
     } catch (error) {
+      console.error('Error creating equipment:', error);
       set({ error: 'Error al crear el equipo', isLoading: false });
     }
   },
@@ -48,10 +49,10 @@ export const useEquipmentStore = create<EquipmentState>((set) => ({
   updateEquipment: async (updatedEquipment) => {
     set({ isLoading: true });
     try {
-      await axiosInstance.put<Equipment>(
-        `/equipment/${updatedEquipment.id}`,
-        updatedEquipment
-      );
+      const { id, ...equipmentData } = updatedEquipment;
+
+      await axiosInstance.put<Equipment>(`/equipment/${id}`, equipmentData);
+
       const response = await axiosInstance.get<Equipment[]>('/equipment');
       set({ equipment: response.data, isLoading: false });
     } catch (error) {
@@ -70,26 +71,30 @@ export const useEquipmentStore = create<EquipmentState>((set) => ({
   fetchEquipmentStats: async () => {
     set({ isLoading: true });
     try {
-      const equipment = await axiosInstance
-        .get<Equipment[]>('/equipment')
-        .then((res) => res.data);
-      if (equipment.length > 0) {
+      const response = await axiosInstance.get<Equipment[]>('/equipment');
+      const equipment = response.data;
+
+      if (equipment && equipment.length > 0) {
         const total = equipment.length;
         const available = equipment.filter(
-          (item: Equipment) => item.available && item.currentLoans === 0
+          (item) => item.status === 'AVAILABLE'
         ).length;
         const onLoan = equipment.filter(
-          (item: Equipment) => item.available && item.currentLoans > 0
+          (item) => item.status === 'LOANED'
         ).length;
         const unavailable = equipment.filter(
-          (item: Equipment) => !item.available
+          (item) => item.status === 'UNAVAILABLE'
         ).length;
 
         set({
           equipmentStats: { total, available, onLoan, unavailable },
           isLoading: false,
         });
-        return;
+      } else {
+        set({
+          equipmentStats: { total: 0, available: 0, onLoan: 0, unavailable: 0 },
+          isLoading: false,
+        });
       }
     } catch (error) {
       console.error('Error fetching equipment stats:', error);
