@@ -42,14 +42,20 @@ const Equipment = () => {
   ];
 
   return (
-    <>
+    <main className="container mx-auto">
       <header className="mb-8 flex items-center justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <Box size={28} className="text-blue-600 dark:text-blue-400" />
-            <h1 className="text-3xl font-bold">Equipamiento</h1>
+            <Box
+              size={28}
+              className="text-blue-600 dark:text-blue-400"
+              aria-hidden="true"
+            />
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+              Equipamiento
+            </h1>
           </div>
-          <p className="text-muted-foreground mt-1">
+          <p className="text-muted-foreground mt-1 text-gray-600 dark:text-gray-300">
             Administra el equipamiento del gimnasio
           </p>
         </div>
@@ -57,9 +63,10 @@ const Equipment = () => {
         <div className="flex gap-2">
           <button
             onClick={() => setIsEquipmentModalOpen(true)}
-            className="flex items-center gap-1 px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+            className="flex items-center gap-1 px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+            aria-label="Crear nuevo equipo"
           >
-            <Plus size={18} />
+            <Plus size={18} aria-hidden="true" />
             <span>Nuevo Equipo</span>
           </button>
         </div>
@@ -68,36 +75,39 @@ const Equipment = () => {
       <StatsCards stats={statsCards} isLoading={isLoading} />
 
       <section className="mt-8">
-        <h2 className="text-2xl font-semibold mb-4">Lista de Equipos</h2>
         <EquipmentList />
       </section>
 
-      <section className="mt-8">
+      <section className="mt-8" aria-labelledby="loan-section-title">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-semibold">Préstamos</h2>
+          <h2
+            id="loan-section-title"
+            className="text-2xl font-semibold text-gray-900 dark:text-gray-100"
+          >
+            Préstamos
+          </h2>
           <button
             onClick={() => setIsLoanModalOpen(true)}
-            className="flex items-center gap-1 px-3 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+            className="flex items-center gap-1 px-3 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500"
+            aria-label="Crear nuevo préstamo"
           >
-            <Plus size={18} />
+            <Plus size={18} aria-hidden="true" />
             <span>Crear Préstamo</span>
           </button>
         </div>
         <LoanList />
       </section>
 
-      {/* Modal para crear/editar equipo */}
       <EquipmentModal
         isOpen={isEquipmentModalOpen}
         onClose={() => setIsEquipmentModalOpen(false)}
       />
 
-      {/* Modal para crear préstamos */}
       <LoanModal
         isOpen={isLoanModalOpen}
         onClose={() => setIsLoanModalOpen(false)}
       />
-    </>
+    </main>
   );
 };
 
