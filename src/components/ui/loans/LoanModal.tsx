@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import { User } from '../../../constants/User';
+import { Equipment } from '../../../constants/equipment';
 import { getAllUsers } from '../../../services/userService';
 import { useEquipmentStore } from '../../../store/useEquipmentStore';
 import { useLoanStore } from '../../../store/useLoanStore';
@@ -14,54 +15,72 @@ interface LoanModalProps {
 }
 
 const LoanModal = ({ isOpen, onClose }: LoanModalProps) => {
-  const loanStore = useLoanStore();
-  const equipmentStore = useEquipmentStore();
-
-  if (!loanStore || !equipmentStore) {
-    console.error('Stores are not initialized properly.');
-    return null;
-  }
-
-  const { createLoan } = loanStore;
-  const { equipment = [], fetchEquipment } = equipmentStore;
+  const { createLoan } = useLoanStore();
+  const {
+    equipment = [],
+    fetchEquipment,
+    fetchEquipmentStats,
+    isLoading: isLoadingEquipment,
+  } = useEquipmentStore();
 
   const [users, setUsers] = useState<User[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoadingUsers, setIsLoadingUsers] = useState(false);
+  const [availableEquipment, setAvailableEquipment] = useState<Equipment[]>([]);
 
   const { reset } = useForm();
 
   useEffect(() => {
-    if (isOpen) {
-      fetchEquipment?.();
-      getAllUsers()
-        .then((fetchedUsers) => {
-          const activeUsers = fetchedUsers.filter((user) => user.isActive);
-          setUsers(activeUsers);
-        })
-        .catch((error) => {
-          console.error('Error loading users:', error);
-          toast.error('Error al cargar usuarios');
-        });
+    async function loadData() {
+      if (!isOpen) return;
+
+      try {
+        // Aseguramos que los datos de equipos estén actualizados
+        await Promise.all([fetchEquipment(), fetchEquipmentStats()]);
+
+        setIsLoadingUsers(true);
+        const fetchedUsers = await getAllUsers();
+        const activeUsers = fetchedUsers.filter((user) => user.isActive);
+        setUsers(activeUsers);
+      } catch (error) {
+        console.error('Error loading data:', error);
+        toast.error('Error al cargar datos');
+      } finally {
+        setIsLoadingUsers(false);
+      }
     }
-  }, [isOpen, fetchEquipment]);
+
+    loadData();
+  }, [isOpen, fetchEquipment, fetchEquipmentStats]);
 
   useEffect(() => {
-    if (equipment) {
-      console.log('Available equipment:', equipment);
+    const availableItems = equipment.filter(
+      (item) => item.status === 'AVAILABLE'
+    );
+    setAvailableEquipment(availableItems);
+
+    if (isOpen && equipment.length > 0 && availableItems.length === 0) {
+      toast.info('No hay equipos disponibles para préstamo');
     }
-  }, [equipment]);
+  }, [equipment, isOpen]);
 
   const handleSubmit = async (data: {
     userId: string;
     equipmentId: string;
   }) => {
+    if (!data.userId || !data.equipmentId) {
+      toast.error('Seleccione un usuario y un equipo');
+      return;
+    }
+
     setIsSubmitting(true);
     try {
-      await createLoan?.(Number(data.userId), Number(data.equipmentId));
+      await createLoan(Number(data.userId), Number(data.equipmentId));
       toast.success('Préstamo creado exitosamente');
       reset();
       onClose();
     } catch (error) {
+      console.error('Error creating loan:', error);
       toast.error('Error al crear el préstamo');
     } finally {
       setIsSubmitting(false);
@@ -69,6 +88,8 @@ const LoanModal = ({ isOpen, onClose }: LoanModalProps) => {
   };
 
   if (!isOpen) return null;
+
+  const isLoading = isLoadingEquipment || isLoadingUsers;
 
   return (
     <div
@@ -97,13 +118,34 @@ const LoanModal = ({ isOpen, onClose }: LoanModalProps) => {
           </button>
         </header>
 
-        <LoanForm
-          users={users}
-          equipment={equipment}
-          onSubmit={handleSubmit}
-          onCancel={onClose}
-          isSubmitting={isSubmitting}
-        />
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center py-8">
+            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
+            <p className="mt-4 text-gray-600 dark:text-gray-300">
+              Cargando información...
+            </p>
+          </div>
+        ) : availableEquipment.length === 0 ? (
+          <div className="py-8 text-center">
+            <p className="text-gray-600 dark:text-gray-300">
+              No hay equipos disponibles para préstamo en este momento.
+            </p>
+            <button
+              onClick={onClose}
+              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            >
+              Cerrar
+            </button>
+          </div>
+        ) : (
+          <LoanForm
+            users={users}
+            equipment={availableEquipment}
+            onSubmit={handleSubmit}
+            onCancel={onClose}
+            isSubmitting={isSubmitting}
+          />
+        )}
       </div>
     </div>
   );
