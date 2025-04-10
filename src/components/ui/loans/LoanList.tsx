@@ -1,19 +1,47 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
 import { useLoanStore } from '../../../store/useLoanStore';
+import { Modal } from '../Modal';
 
 const LoanList = () => {
   const { loans, isLoading, fetchAllLoans, completeLoan } = useLoanStore();
+  const [confirmModal, setConfirmModal] = useState({
+    isOpen: false,
+    loanId: null as number | null,
+    equipmentName: '',
+  });
 
   useEffect(() => {
     fetchAllLoans();
   }, [fetchAllLoans]);
 
-  const handleCompleteLoan = async (loanId: number) => {
+  const openConfirmModal = (loanId: number, equipmentName: string) => {
+    setConfirmModal({
+      isOpen: true,
+      loanId,
+      equipmentName,
+    });
+  };
+
+  const closeConfirmModal = () => {
+    setConfirmModal({
+      isOpen: false,
+      loanId: null,
+      equipmentName: '',
+    });
+  };
+
+  const handleCompleteLoan = async () => {
+    if (confirmModal.loanId === null) return;
+
     try {
-      await completeLoan(loanId);
-      alert('Préstamo marcado como devuelto.');
+      await completeLoan(confirmModal.loanId);
+      toast.success(
+        `Préstamo de ${confirmModal.equipmentName} marcado como devuelto`
+      );
+      closeConfirmModal();
     } catch (error) {
-      alert('Error al completar el préstamo.');
+      toast.error('Error al completar el préstamo');
     }
   };
 
@@ -25,77 +53,181 @@ const LoanList = () => {
     : [];
 
   return (
-    <div className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-6">Gestión de Préstamos</h2>
-      {isLoading ? (
-        <p className="text-gray-600">Cargando préstamos...</p>
-      ) : (
-        <>
-          <section className="mb-6">
-            <h3 className="text-xl font-semibold mb-4">Préstamos Pendientes</h3>
-            {pendingLoans.length === 0 ? (
-              <p className="text-gray-600">No hay préstamos pendientes.</p>
-            ) : (
-              <ul className="space-y-4">
-                {pendingLoans.map((loan) => (
-                  <li
-                    key={loan.id}
-                    className="p-4 border rounded-md bg-gray-50 dark:bg-gray-700"
-                  >
-                    <p>
-                      <strong>Usuario:</strong> {loan.userName}{' '}
-                      {loan.userLastName}
-                    </p>
-                    <p>
-                      <strong>Equipo:</strong> {loan.equipmentName}
-                    </p>
-                    <p>
-                      <strong>Fecha de Préstamo:</strong> {loan.loanDate}
-                    </p>
-                    <button
-                      onClick={() => handleCompleteLoan(loan.id)}
-                      className="mt-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+    <>
+      <article className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+        <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">
+          Gestión de Préstamos
+        </h2>
+        {isLoading ? (
+          <div
+            className="flex justify-center items-center py-8"
+            aria-live="polite"
+            aria-busy="true"
+          >
+            <div
+              className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"
+              role="progressbar"
+            ></div>
+            <span className="sr-only">Cargando préstamos...</span>
+          </div>
+        ) : (
+          <>
+            <section className="mb-8" aria-labelledby="pending-loans-title">
+              <h3
+                id="pending-loans-title"
+                className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200"
+              >
+                Préstamos Pendientes
+              </h3>
+              {pendingLoans.length === 0 ? (
+                <p className="text-gray-600 dark:text-gray-400">
+                  No hay préstamos pendientes.
+                </p>
+              ) : (
+                <ul className="space-y-4" role="list">
+                  {pendingLoans.map((loan) => (
+                    <li
+                      key={loan.id}
+                      className="p-4 border border-gray-200 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-700 transition-colors"
                     >
-                      Marcar como Devuelto
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </section>
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                        <dl className="space-y-2">
+                          <div>
+                            <dt className="inline font-semibold text-gray-900 dark:text-white">
+                              Equipo:{' '}
+                            </dt>
+                            <dd className="inline text-gray-900 dark:text-white">
+                              {loan.equipmentName}
+                            </dd>
+                          </div>
+                          <div>
+                            <dt className="inline font-semibold text-gray-700 dark:text-gray-300">
+                              Usuario:{' '}
+                            </dt>
+                            <dd className="inline text-gray-700 dark:text-gray-300">
+                              {loan.userName} {loan.userLastName}
+                            </dd>
+                          </div>
+                          <div>
+                            <dt className="inline font-semibold text-gray-600 dark:text-gray-400 text-sm">
+                              Fecha:{' '}
+                            </dt>
+                            <dd className="inline text-gray-600 dark:text-gray-400 text-sm">
+                              {new Date(loan.loanDate).toLocaleDateString()}
+                            </dd>
+                          </div>
+                        </dl>
+                        <button
+                          onClick={() =>
+                            openConfirmModal(loan.id, loan.equipmentName)
+                          }
+                          className="mt-3 sm:mt-0 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50"
+                        >
+                          Marcar como Devuelto
+                        </button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
 
-          <section>
-            <h3 className="text-xl font-semibold mb-4">Préstamos Devueltos</h3>
-            {returnedLoans.length === 0 ? (
-              <p className="text-gray-600">No hay préstamos devueltos.</p>
-            ) : (
-              <ul className="space-y-4">
-                {returnedLoans.map((loan) => (
-                  <li
-                    key={loan.id}
-                    className="p-4 border rounded-md bg-gray-50 dark:bg-gray-700"
-                  >
-                    <p>
-                      <strong>Usuario:</strong> {loan.userName}{' '}
-                      {loan.userLastName}
-                    </p>
-                    <p>
-                      <strong>Equipo:</strong> {loan.equipmentName}
-                    </p>
-                    <p>
-                      <strong>Fecha de Préstamo:</strong> {loan.loanDate}
-                    </p>
-                    <p>
-                      <strong>Fecha de Devolución:</strong> {loan.returnDate}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </section>
-        </>
-      )}
-    </div>
+            <section aria-labelledby="returned-loans-title">
+              <h3
+                id="returned-loans-title"
+                className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200"
+              >
+                Préstamos Devueltos
+              </h3>
+              {returnedLoans.length === 0 ? (
+                <p className="text-gray-600 dark:text-gray-400">
+                  No hay préstamos devueltos.
+                </p>
+              ) : (
+                <ul className="space-y-4" role="list">
+                  {returnedLoans.map((loan) => (
+                    <li
+                      key={loan.id}
+                      className="p-4 border border-gray-200 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-700"
+                    >
+                      <dl className="flex flex-col">
+                        <div>
+                          <dt className="inline font-semibold text-gray-900 dark:text-white">
+                            Equipo:{' '}
+                          </dt>
+                          <dd className="inline text-gray-900 dark:text-white">
+                            {loan.equipmentName}
+                          </dd>
+                        </div>
+                        <div>
+                          <dt className="inline font-semibold text-gray-700 dark:text-gray-300">
+                            Usuario:{' '}
+                          </dt>
+                          <dd className="inline text-gray-700 dark:text-gray-300">
+                            {loan.userName} {loan.userLastName}
+                          </dd>
+                        </div>
+                        <div className="flex flex-col sm:flex-row sm:gap-4">
+                          <div>
+                            <dt className="inline font-semibold text-gray-600 dark:text-gray-400 text-sm">
+                              Préstamo:{' '}
+                            </dt>
+                            <dd className="inline text-gray-600 dark:text-gray-400 text-sm">
+                              {new Date(loan.loanDate).toLocaleDateString()}
+                            </dd>
+                          </div>
+                          {loan.returnDate && (
+                            <div>
+                              <dt className="inline font-semibold text-gray-600 dark:text-gray-400 text-sm">
+                                Devolución:{' '}
+                              </dt>
+                              <dd className="inline text-gray-600 dark:text-gray-400 text-sm">
+                                {new Date(loan.returnDate).toLocaleDateString()}
+                              </dd>
+                            </div>
+                          )}
+                        </div>
+                      </dl>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+          </>
+        )}
+      </article>
+
+      <Modal
+        isOpen={confirmModal.isOpen}
+        onClose={closeConfirmModal}
+        title="Confirmar devolución"
+        size="sm"
+      >
+        <div className="p-6">
+          <p className="mb-6 text-gray-800 dark:text-gray-200">
+            ¿Confirmas que el equipo{' '}
+            <strong className="text-gray-900 dark:text-white">
+              {confirmModal.equipmentName}
+            </strong>{' '}
+            ha sido devuelto?
+          </p>
+          <div className="flex justify-end gap-3">
+            <button
+              onClick={closeConfirmModal}
+              className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500"
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={handleCompleteLoan}
+              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50"
+            >
+              Confirmar
+            </button>
+          </div>
+        </div>
+      </Modal>
+    </>
   );
 };
 
