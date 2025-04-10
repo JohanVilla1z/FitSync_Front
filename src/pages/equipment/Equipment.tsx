@@ -3,10 +3,13 @@ import { useEffect, useState } from 'react';
 import EquipmentList from '../../components/ui/EquipmentList';
 import EquipmentModal from '../../components/ui/EquipmentModal';
 import StatsCards, { StatItem } from '../../components/ui/StatsCards';
+import LoanList from '../../components/ui/loans/LoanList';
+import LoanModal from '../../components/ui/loans/LoanModal';
 import { useEquipmentStore } from '../../store/useEquipmentStore';
 
 const Equipment = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEquipmentModalOpen, setIsEquipmentModalOpen] = useState(false);
+  const [isLoanModalOpen, setIsLoanModalOpen] = useState(false);
   const { fetchEquipment, fetchEquipmentStats, equipmentStats, isLoading } =
     useEquipmentStore();
 
@@ -53,7 +56,7 @@ const Equipment = () => {
 
         <div className="flex gap-2">
           <button
-            onClick={() => setIsModalOpen(true)}
+            onClick={() => setIsEquipmentModalOpen(true)}
             className="flex items-center gap-1 px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
           >
             <Plus size={18} />
@@ -62,17 +65,37 @@ const Equipment = () => {
         </div>
       </header>
 
-      {/* Estadísticas rápidas usando el componente */}
       <StatsCards stats={statsCards} isLoading={isLoading} />
 
-      <section>
+      <section className="mt-8">
+        <h2 className="text-2xl font-semibold mb-4">Lista de Equipos</h2>
         <EquipmentList />
+      </section>
+
+      <section className="mt-8">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-2xl font-semibold">Préstamos</h2>
+          <button
+            onClick={() => setIsLoanModalOpen(true)}
+            className="flex items-center gap-1 px-3 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+          >
+            <Plus size={18} />
+            <span>Crear Préstamo</span>
+          </button>
+        </div>
+        <LoanList />
       </section>
 
       {/* Modal para crear/editar equipo */}
       <EquipmentModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        isOpen={isEquipmentModalOpen}
+        onClose={() => setIsEquipmentModalOpen(false)}
+      />
+
+      {/* Modal para crear préstamos */}
+      <LoanModal
+        isOpen={isLoanModalOpen}
+        onClose={() => setIsLoanModalOpen(false)}
       />
     </>
   );
