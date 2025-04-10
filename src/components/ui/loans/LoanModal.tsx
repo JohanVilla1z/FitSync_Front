@@ -39,16 +39,15 @@ const LoanModal = ({ isOpen, onClose }: LoanModalProps) => {
           setUsers(activeUsers);
         })
         .catch((error) => {
-          console.error('Error loading users:', error); // Log del error específico
+          console.error('Error loading users:', error);
           toast.error('Error al cargar usuarios');
         });
     }
   }, [isOpen, fetchEquipment]);
 
-  // También puedes verificar los equipos:
   useEffect(() => {
     if (equipment) {
-      console.log('Available equipment:', equipment); // Log de equipos
+      console.log('Available equipment:', equipment);
     }
   }, [equipment]);
 
@@ -72,17 +71,31 @@ const LoanModal = ({ isOpen, onClose }: LoanModalProps) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 w-full max-w-md">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">Crear Préstamo</h2>
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="loan-modal-title"
+    >
+      <div
+        className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 w-full max-w-md"
+        role="document"
+      >
+        <header className="flex justify-between items-center mb-4">
+          <h2
+            id="loan-modal-title"
+            className="text-xl font-bold text-gray-900 dark:text-gray-100"
+          >
+            Crear Préstamo
+          </h2>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+            aria-label="Cerrar modal"
+            className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 rounded"
           >
-            <X size={24} />
+            <X size={24} aria-hidden="true" />
           </button>
-        </div>
+        </header>
 
         <LoanForm
           users={users}
