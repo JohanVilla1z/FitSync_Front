@@ -1,7 +1,7 @@
 import { Dialog, DialogContent, DialogTitle } from '@radix-ui/react-dialog';
 import { X } from 'lucide-react';
 import { ReactNode } from 'react';
-import { DialogHeader } from './dialog';
+import { DialogHeader, DialogOverlay } from './dialog';
 
 interface ModalProps {
   isOpen: boolean;
@@ -18,7 +18,6 @@ export const Modal = ({
   children,
   size = 'md',
 }: ModalProps) => {
-  // Determinamos las clases de tamaño
   const sizeClasses = {
     sm: 'sm:max-w-sm',
     md: 'sm:max-w-md',
@@ -30,7 +29,11 @@ export const Modal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className={`${maxWidthClass} p-0 overflow-hidden`}>
+      <DialogOverlay className="bg-black/80" />{' '}
+      {/* Aseguramos que el overlay sea visible */}
+      <DialogContent
+        className={`${maxWidthClass} p-0 overflow-hidden z-50 fixed`}
+      >
         {title ? (
           <DialogHeader className="px-6 pt-6">
             <div className="flex justify-between items-center">
