@@ -45,14 +45,21 @@ export const EquipmentCombobox = ({
         ?.name || 'Seleccionar equipo'
     : 'Seleccionar equipo';
 
+  const comboboxId = 'equipment-combobox';
+
   return (
-    <div>
+    <div className="relative">
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <button
+            type="button"
+            id={comboboxId}
             role="combobox"
             aria-expanded={open}
-            className="w-full justify-between bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-left shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 text-gray-900 dark:text-gray-100"
+            aria-haspopup="listbox"
+            aria-controls={`${comboboxId}-list`}
+            aria-label="Seleccionar equipo"
+            className="w-full justify-between bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-left shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-gray-100"
           >
             {selectedEquipmentName}
           </button>
@@ -67,8 +74,12 @@ export const EquipmentCombobox = ({
               className="border-none focus:ring-0 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400"
               value={searchQuery}
               onValueChange={setSearchQuery}
+              aria-autocomplete="list"
             />
-            <CommandList className="text-gray-900 dark:text-gray-200">
+            <CommandList
+              id={`${comboboxId}-list`}
+              className="text-gray-900 dark:text-gray-200"
+            >
               <CommandEmpty className="text-gray-600 dark:text-gray-300">
                 No hay equipos disponibles.
               </CommandEmpty>
@@ -77,12 +88,14 @@ export const EquipmentCombobox = ({
                   <CommandItem
                     key={item.id}
                     value={item.name}
+                    role="option"
+                    aria-selected={selectedEquipment === item.id.toString()}
                     onSelect={() => {
                       setSelectedEquipment(item.id.toString());
                       setOpen(false);
                       setSearchQuery('');
                     }}
-                    className="text-gray-900 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    className="text-gray-900 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 focus:bg-gray-100 dark:focus:bg-gray-700 cursor-pointer"
                   >
                     {item.name}
                   </CommandItem>
@@ -93,7 +106,7 @@ export const EquipmentCombobox = ({
         </PopoverContent>
       </Popover>
       {errors?.equipmentId && (
-        <p className="text-red-500 text-sm mt-1">
+        <p className="text-red-500 text-sm mt-1" role="alert">
           {errors.equipmentId.message}
         </p>
       )}
