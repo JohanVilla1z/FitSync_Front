@@ -1,13 +1,18 @@
 import { Check, Pencil, X } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
-import { Equipment } from '../../constants/equipment';
+import {
+  Equipment,
+  EquipmentStatus,
+  statusDisplayNames,
+} from '../../constants/equipment';
 import { useEquipmentStore } from '../../store/useEquipmentStore';
 import EquipmentModal from './EquipmentModal';
 
 interface EquipmentTableProps {
   isLoading: boolean;
   equipment: Equipment[];
+  onRefresh?: () => void;
 }
 
 const EquipmentTable = ({ isLoading, equipment }: EquipmentTableProps) => {
@@ -23,34 +28,68 @@ const EquipmentTable = ({ isLoading, equipment }: EquipmentTableProps) => {
     setIsEditModalOpen(true);
   };
 
-  const handleToggleAvailability = (item: Equipment) => {
+  const handleToggleStatus = (item: Equipment) => {
     setSelectedEquipment(item);
     setIsConfirmModalOpen(true);
   };
 
-  const confirmToggleAvailability = async () => {
+  const getStatusColor = (status: EquipmentStatus) => {
+    switch (status) {
+      case 'AVAILABLE':
+        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+      case 'LOANED':
+        return 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200';
+      case 'UNAVAILABLE':
+        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
+      default:
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
+    }
+  };
+
+  const getNextStatus = (status: EquipmentStatus): EquipmentStatus => {
+    return status === 'AVAILABLE' ? 'UNAVAILABLE' : 'AVAILABLE';
+  };
+
+  const confirmToggleStatus = async () => {
     if (!selectedEquipment) return;
 
     try {
-      // Crear una copia del equipo con disponibilidad invertida
+      const nextStatus = getNextStatus(selectedEquipment.status);
       const updatedEquipment = {
         ...selectedEquipment,
-        available: !selectedEquipment.available,
+        status: nextStatus,
       };
 
       await updateEquipment(updatedEquipment);
 
       toast.success(
-        `El equipo ${selectedEquipment.name} ahora está ${
-          !selectedEquipment.available ? 'disponible' : 'no disponible'
-        }`
+        `El equipo ${selectedEquipment.name} ahora está ${nextStatus}`
       );
     } catch (error) {
-      console.error('Error al cambiar la disponibilidad:', error);
-      toast.error('Error al cambiar la disponibilidad del equipo');
+      console.error('Error al cambiar el estado:', error);
+      toast.error('Error al cambiar el estado del equipo');
     } finally {
       setIsConfirmModalOpen(false);
       setSelectedEquipment(null);
+    }
+  };
+
+  const getStatusIcon = (status: EquipmentStatus) => {
+    switch (status) {
+      case 'AVAILABLE':
+        return (
+          <span title="Marcar como no disponible">
+            <X size={18} className="text-red-600 dark:text-red-400" />
+          </span>
+        );
+      case 'LOANED':
+        return null;
+      case 'UNAVAILABLE':
+        return (
+          <span title="Marcar como disponible">
+            <Check size={18} className="text-green-600 dark:text-green-400" />
+          </span>
+        );
     }
   };
 
@@ -66,10 +105,13 @@ const EquipmentTable = ({ isLoading, equipment }: EquipmentTableProps) => {
               Descripción
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-              Disponibilidad
+              Estado
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-              Préstamos
+              Préstamos Actuales
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              Préstamos Totales
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
               Acciones
@@ -80,7 +122,7 @@ const EquipmentTable = ({ isLoading, equipment }: EquipmentTableProps) => {
           {isLoading ? (
             <tr>
               <td
-                colSpan={5}
+                colSpan={6}
                 className="px-6 py-4 text-center whitespace-nowrap text-gray-500 dark:text-gray-400"
               >
                 <div className="flex justify-center">
@@ -92,7 +134,7 @@ const EquipmentTable = ({ isLoading, equipment }: EquipmentTableProps) => {
           ) : equipment.length === 0 ? (
             <tr>
               <td
-                colSpan={5}
+                colSpan={6}
                 className="px-6 py-10 text-center whitespace-nowrap text-gray-500 dark:text-gray-400"
               >
                 No hay equipamiento disponible.
@@ -123,13 +165,11 @@ const EquipmentTable = ({ isLoading, equipment }: EquipmentTableProps) => {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span
-                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      item.available
-                        ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                        : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                    }`}
+                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(
+                      item.status
+                    )}`}
                   >
-                    {item.available ? 'Disponible' : 'No disponible'}
+                    {statusDisplayNames[item.status]}
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
@@ -145,6 +185,19 @@ const EquipmentTable = ({ isLoading, equipment }: EquipmentTableProps) => {
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="text-sm text-gray-900 dark:text-gray-100">
+                    <span
+                      className={
+                        item.loanCount > 0
+                          ? 'font-medium'
+                          : 'text-gray-500 dark:text-gray-400'
+                      }
+                    >
+                      {item.loanCount}
+                    </span>
+                  </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex space-x-2">
                     <button
                       onClick={() => handleEdit(item)}
@@ -156,27 +209,19 @@ const EquipmentTable = ({ isLoading, equipment }: EquipmentTableProps) => {
                         className="text-amber-600 dark:text-amber-400"
                       />
                     </button>
-                    <button
-                      className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
-                      title={
-                        item.available
-                          ? 'Marcar como no disponible'
-                          : 'Marcar como disponible'
-                      }
-                      onClick={() => handleToggleAvailability(item)}
-                    >
-                      {item.available ? (
-                        <X
-                          size={18}
-                          className="text-red-600 dark:text-red-400"
-                        />
-                      ) : (
-                        <Check
-                          size={18}
-                          className="text-green-600 dark:text-green-400"
-                        />
-                      )}
-                    </button>
+                    {item.status !== 'LOANED' && (
+                      <button
+                        className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
+                        title={
+                          item.status === 'AVAILABLE'
+                            ? 'Marcar como no disponible'
+                            : 'Marcar como disponible'
+                        }
+                        onClick={() => handleToggleStatus(item)}
+                      >
+                        {getStatusIcon(item.status)}
+                      </button>
+                    )}
                   </div>
                 </td>
               </tr>
@@ -197,7 +242,7 @@ const EquipmentTable = ({ isLoading, equipment }: EquipmentTableProps) => {
         />
       )}
 
-      {/* Modal de confirmación para cambiar disponibilidad */}
+      {/* Modal de confirmación para cambiar estado */}
       {isConfirmModalOpen && selectedEquipment && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 w-full max-w-md">
@@ -213,7 +258,7 @@ const EquipmentTable = ({ isLoading, equipment }: EquipmentTableProps) => {
 
             <p className="mb-6 text-gray-600 dark:text-gray-300">
               ¿Estás seguro de que deseas marcar "{selectedEquipment.name}" como{' '}
-              {selectedEquipment.available ? 'no disponible' : 'disponible'}?
+              {getNextStatus(selectedEquipment.status)}?
             </p>
 
             <div className="flex justify-end gap-2">
@@ -224,7 +269,7 @@ const EquipmentTable = ({ isLoading, equipment }: EquipmentTableProps) => {
                 Cancelar
               </button>
               <button
-                onClick={confirmToggleAvailability}
+                onClick={confirmToggleStatus}
                 className="px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
               >
                 Confirmar

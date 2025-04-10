@@ -1,13 +1,17 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
-import { Equipment } from '../../constants/equipment';
+import {
+  Equipment,
+  EquipmentStatus,
+  statusDisplayNames,
+} from '../../constants/equipment';
 import { useEquipmentStore } from '../../store/useEquipmentStore';
 
 interface EquipmentModalProps {
   isOpen: boolean;
   onClose: () => void;
-  equipment?: Equipment; // Si se pasa un equipo, es para editar; si no, es para crear
+  equipment?: Equipment;
 }
 
 const EquipmentModal = ({
@@ -18,34 +22,53 @@ const EquipmentModal = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { createEquipment, updateEquipment } = useEquipmentStore();
 
+  type FormData = {
+    name: string;
+    description: string;
+    status: EquipmentStatus;
+    id?: number;
+    currentLoans?: number;
+    loanCount?: number;
+  };
+
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<Equipment>({
+  } = useForm<FormData>({
     defaultValues: equipment || {
-      id: 0,
       name: '',
       description: '',
-      available: true,
-      currentLoans: 0,
+      status: 'AVAILABLE' as EquipmentStatus,
     },
   });
 
-  const onSubmit = async (data: Equipment) => {
+  const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
     try {
+      const equipmentData: Omit<Equipment, 'id'> = {
+        name: data.name,
+        description: data.description,
+        status: data.status,
+        currentLoans: equipment?.currentLoans || 0,
+        loanCount: equipment?.loanCount || 0,
+      };
+
       if (equipment) {
-        await updateEquipment(data);
+        await updateEquipment({
+          ...equipmentData,
+          id: equipment.id,
+        });
         toast.success(`Equipo ${data.name} actualizado exitosamente`);
       } else {
-        await createEquipment(data);
+        await createEquipment(equipmentData);
         toast.success(`Equipo ${data.name} creado exitosamente`);
       }
       reset();
       onClose();
     } catch (error) {
+      console.error('Error saving equipment:', error);
       toast.error('Error al guardar el equipo.');
     } finally {
       setIsSubmitting(false);
@@ -113,27 +136,50 @@ const EquipmentModal = ({
             )}
           </div>
 
-          {/* Disponible */}
+          {/* Estado */}
           <div>
-            <label
-              htmlFor="available"
-              className="block text-sm font-medium mb-1"
-            >
-              Disponible
+            <label htmlFor="status" className="block text-sm font-medium mb-1">
+              Estado
             </label>
-            <input
-              {...register('available')}
-              id="available"
-              type="checkbox"
-              className="mr-2"
-            />
+            <select
+              {...register('status', { required: 'El estado es obligatorio' })}
+              id="status"
+              className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
+            >
+              <option value="AVAILABLE">{statusDisplayNames.AVAILABLE}</option>
+              <option value="UNAVAILABLE">
+                {statusDisplayNames.UNAVAILABLE}
+              </option>
+              {equipment?.status === 'LOANED' && (
+                <option value="LOANED">{statusDisplayNames.LOANED}</option>
+              )}
+            </select>
+            {errors.status && (
+              <p className="text-sm text-red-600 mt-1">
+                {errors.status.message}
+              </p>
+            )}
           </div>
+
+          {/* Mostrar contadores si es un equipo existente */}
+          {equipment && (
+            <div className="grid grid-cols-2 gap-4">
+              <div className="text-sm">
+                <span className="font-medium">Préstamos actuales:</span>
+                <span className="ml-2">{equipment.currentLoans}</span>
+              </div>
+              <div className="text-sm">
+                <span className="font-medium">Préstamos totales:</span>
+                <span className="ml-2">{equipment.loanCount}</span>
+              </div>
+            </div>
+          )}
 
           <div className="flex justify-end gap-2 pt-2">
             <button
               type="button"
               onClick={() => {
-                toast.info('Edición cancelada');
+                reset();
                 onClose();
               }}
               className="px-4 py-2 border rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
