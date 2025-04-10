@@ -1,46 +1,64 @@
+import { X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import { User } from '../../../constants/User';
-import { getTrainerUsers } from '../../../services/trainerService';
+import { getAllUsers } from '../../../services/userService';
 import { useEquipmentStore } from '../../../store/useEquipmentStore';
 import { useLoanStore } from '../../../store/useLoanStore';
+import { LoanForm } from './LoanForm';
 
 interface LoanModalProps {
   isOpen: boolean;
   onClose: () => void;
-  trainerId: number; // ID del entrenador para obtener usuarios
 }
 
-const LoanModal = ({ isOpen, onClose, trainerId }: LoanModalProps) => {
-  const { createLoan } = useLoanStore();
-  const { equipment, fetchEquipment } = useEquipmentStore();
+const LoanModal = ({ isOpen, onClose }: LoanModalProps) => {
+  const loanStore = useLoanStore();
+  const equipmentStore = useEquipmentStore();
+
+  if (!loanStore || !equipmentStore) {
+    console.error('Stores are not initialized properly.');
+    return null;
+  }
+
+  const { createLoan } = loanStore;
+  const { equipment = [], fetchEquipment } = equipmentStore;
+
   const [users, setUsers] = useState<User[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm({
-    defaultValues: {
-      userId: '',
-      equipmentId: '',
-    },
-  });
+  const { reset } = useForm();
 
   useEffect(() => {
     if (isOpen) {
-      fetchEquipment(); // Cargar equipos disponibles
-      getTrainerUsers(trainerId).then(setUsers); // Cargar usuarios activos del entrenador
+      fetchEquipment?.();
+      getAllUsers()
+        .then((fetchedUsers) => {
+          const activeUsers = fetchedUsers.filter((user) => user.isActive);
+          setUsers(activeUsers);
+        })
+        .catch((error) => {
+          console.error('Error loading users:', error); // Log del error específico
+          toast.error('Error al cargar usuarios');
+        });
     }
-  }, [isOpen, fetchEquipment, trainerId]);
+  }, [isOpen, fetchEquipment]);
 
-  const onSubmit = async (data: { userId: string; equipmentId: string }) => {
+  // También puedes verificar los equipos:
+  useEffect(() => {
+    if (equipment) {
+      console.log('Available equipment:', equipment); // Log de equipos
+    }
+  }, [equipment]);
+
+  const handleSubmit = async (data: {
+    userId: string;
+    equipmentId: string;
+  }) => {
     setIsSubmitting(true);
     try {
-      await createLoan(Number(data.userId), Number(data.equipmentId));
+      await createLoan?.(Number(data.userId), Number(data.equipmentId));
       toast.success('Préstamo creado exitosamente');
       reset();
       onClose();
@@ -56,79 +74,23 @@ const LoanModal = ({ isOpen, onClose, trainerId }: LoanModalProps) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 w-full max-w-md">
-        <h2 className="text-xl font-bold mb-4">Crear Préstamo</h2>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {/* Selección de usuario */}
-          <div>
-            <label htmlFor="userId" className="block text-sm font-medium mb-1">
-              Usuario
-            </label>
-            <select
-              {...register('userId', { required: 'Selecciona un usuario' })}
-              id="userId"
-              className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
-            >
-              <option value="">Selecciona un usuario</option>
-              {users.map((user) => (
-                <option key={user.id} value={user.id}>
-                  {user.name} {user.lastName}
-                </option>
-              ))}
-            </select>
-            {errors.userId && (
-              <p className="text-sm text-red-600 mt-1">
-                {errors.userId.message}
-              </p>
-            )}
-          </div>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-bold">Crear Préstamo</h2>
+          <button
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+          >
+            <X size={24} />
+          </button>
+        </div>
 
-          {/* Selección de equipo */}
-          <div>
-            <label
-              htmlFor="equipmentId"
-              className="block text-sm font-medium mb-1"
-            >
-              Equipo
-            </label>
-            <select
-              {...register('equipmentId', { required: 'Selecciona un equipo' })}
-              id="equipmentId"
-              className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
-            >
-              <option value="">Selecciona un equipo</option>
-              {equipment
-                .filter((item) => item.available)
-                .map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.name}
-                  </option>
-                ))}
-            </select>
-            {errors.equipmentId && (
-              <p className="text-sm text-red-600 mt-1">
-                {errors.equipmentId.message}
-              </p>
-            )}
-          </div>
-
-          {/* Botones */}
-          <div className="flex justify-end gap-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 border rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-70"
-            >
-              {isSubmitting ? 'Creando...' : 'Crear Préstamo'}
-            </button>
-          </div>
-        </form>
+        <LoanForm
+          users={users}
+          equipment={equipment}
+          onSubmit={handleSubmit}
+          onCancel={onClose}
+          isSubmitting={isSubmitting}
+        />
       </div>
     </div>
   );
