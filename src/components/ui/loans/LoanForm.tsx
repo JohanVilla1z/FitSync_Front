@@ -48,8 +48,10 @@ export const LoanForm = ({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <div className="mb-4">
-        <label className="block text-sm font-medium mb-1">Usuario</label>
+      <fieldset className="mb-4">
+        <legend className="block text-sm font-medium mb-1 text-gray-900 dark:text-gray-100">
+          Usuario
+        </legend>
         <Controller
           name="userId"
           control={control}
@@ -68,14 +70,16 @@ export const LoanForm = ({
           )}
         />
         {errors.userId && (
-          <p className="text-red-500 text-sm mt-1">
+          <p className="text-red-500 text-sm mt-1" role="alert">
             {String(errors.userId.message)}
           </p>
         )}
-      </div>
+      </fieldset>
 
-      <div className="mb-4">
-        <label className="block text-sm font-medium mb-1">Equipo</label>
+      <fieldset className="mb-4">
+        <legend className="block text-sm font-medium mb-1 text-gray-900 dark:text-gray-100">
+          Equipo
+        </legend>
         <Controller
           name="equipmentId"
           control={control}
@@ -94,24 +98,25 @@ export const LoanForm = ({
           )}
         />
         {errors.equipmentId && (
-          <p className="text-red-500 text-sm mt-1">
+          <p className="text-red-500 text-sm mt-1" role="alert">
             {String(errors.equipmentId.message)}
           </p>
         )}
-      </div>
+      </fieldset>
 
       <div className="flex justify-end gap-2">
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2 border rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
+          className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500"
         >
           Cancelar
         </button>
         <button
           type="submit"
           disabled={isSubmitting || !selectedUser || !selectedEquipment}
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-70"
+          aria-busy={isSubmitting}
+          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-70 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
         >
           {isSubmitting ? 'Creando...' : 'Crear Préstamo'}
         </button>
