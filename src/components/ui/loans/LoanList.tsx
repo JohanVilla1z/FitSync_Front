@@ -1,19 +1,36 @@
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
+import { useEquipmentStore } from '../../../store/useEquipmentStore';
 import { useLoanStore } from '../../../store/useLoanStore';
 import { Modal } from '../Modal';
 
 const LoanList = () => {
   const { loans, isLoading, fetchAllLoans, completeLoan } = useLoanStore();
+  const { fetchEquipment, fetchEquipmentStats } = useEquipmentStore();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [confirmModal, setConfirmModal] = useState({
     isOpen: false,
     loanId: null as number | null,
     equipmentName: '',
   });
 
+  // Cargar datos al montar el componente
   useEffect(() => {
-    fetchAllLoans();
-  }, [fetchAllLoans]);
+    const loadInitialData = async () => {
+      try {
+        await Promise.all([
+          fetchAllLoans(),
+          fetchEquipment(),
+          fetchEquipmentStats(),
+        ]);
+      } catch (error) {
+        console.error('Error loading initial data:', error);
+        toast.error('Error al cargar datos iniciales');
+      }
+    };
+
+    loadInitialData();
+  }, [fetchAllLoans, fetchEquipment, fetchEquipmentStats]);
 
   const openConfirmModal = (loanId: number, equipmentName: string) => {
     setConfirmModal({
@@ -32,16 +49,24 @@ const LoanList = () => {
   };
 
   const handleCompleteLoan = async () => {
-    if (confirmModal.loanId === null) return;
+    if (confirmModal.loanId === null || isSubmitting) return;
 
+    setIsSubmitting(true);
     try {
       await completeLoan(confirmModal.loanId);
+
+      // Actualizar ambos stores después de completar un préstamo
+      await Promise.all([fetchEquipment(), fetchEquipmentStats()]);
+
       toast.success(
         `Préstamo de ${confirmModal.equipmentName} marcado como devuelto`
       );
       closeConfirmModal();
     } catch (error) {
+      console.error('Error al completar el préstamo:', error);
       toast.error('Error al completar el préstamo');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -121,9 +146,12 @@ const LoanList = () => {
                           onClick={() =>
                             openConfirmModal(loan.id, loan.equipmentName)
                           }
-                          className="mt-3 sm:mt-0 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50"
+                          disabled={isSubmitting}
+                          className="mt-3 sm:mt-0 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 disabled:opacity-50"
                         >
-                          Marcar como Devuelto
+                          {isSubmitting
+                            ? 'Procesando...'
+                            : 'Marcar como Devuelto'}
                         </button>
                       </div>
                     </li>
@@ -214,15 +242,24 @@ const LoanList = () => {
           <div className="flex justify-end gap-3">
             <button
               onClick={closeConfirmModal}
-              className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500"
+              disabled={isSubmitting}
+              className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 disabled:opacity-50"
             >
               Cancelar
             </button>
             <button
               onClick={handleCompleteLoan}
-              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50"
+              disabled={isSubmitting}
+              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 disabled:opacity-50"
             >
-              Confirmar
+              {isSubmitting ? (
+                <span className="flex items-center">
+                  <span className="animate-spin mr-2 h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
+                  Procesando...
+                </span>
+              ) : (
+                'Confirmar'
+              )}
             </button>
           </div>
         </div>
