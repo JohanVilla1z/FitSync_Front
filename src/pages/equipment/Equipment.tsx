@@ -60,7 +60,7 @@ const Equipment = () => {
   };
 
   return (
-    <main className="container mx-auto">
+    <>
       <header className="mb-8 flex items-center justify-between">
         <div>
           <div className="flex items-center gap-2">
@@ -131,7 +131,7 @@ const Equipment = () => {
         isOpen={isLoanModalOpen}
         onClose={() => setIsLoanModalOpen(false)}
       />
-    </main>
+    </>
   );
 };
 
