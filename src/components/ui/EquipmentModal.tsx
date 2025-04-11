@@ -27,7 +27,6 @@ const EquipmentModal = ({
     description: string;
     status: EquipmentStatus;
     id?: number;
-    currentLoans?: number;
     loanCount?: number;
   };
 
@@ -51,7 +50,6 @@ const EquipmentModal = ({
         name: data.name,
         description: data.description,
         status: data.status,
-        currentLoans: equipment?.currentLoans || 0,
         loanCount: equipment?.loanCount || 0,
       };
 
@@ -163,11 +161,7 @@ const EquipmentModal = ({
 
           {/* Mostrar contadores si es un equipo existente */}
           {equipment && (
-            <div className="grid grid-cols-2 gap-4">
-              <div className="text-sm">
-                <span className="font-medium">Préstamos actuales:</span>
-                <span className="ml-2">{equipment.currentLoans}</span>
-              </div>
+            <div className="grid grid-cols-1 gap-4">
               <div className="text-sm">
                 <span className="font-medium">Préstamos totales:</span>
                 <span className="ml-2">{equipment.loanCount}</span>

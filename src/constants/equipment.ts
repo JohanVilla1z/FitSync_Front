@@ -11,6 +11,5 @@ export interface Equipment {
   name: string;
   description: string;
   status: EquipmentStatus;
-  currentLoans: number;
   loanCount: number;
 }

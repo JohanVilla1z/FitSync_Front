@@ -108,9 +108,6 @@ const EquipmentTable = ({ isLoading, equipment }: EquipmentTableProps) => {
               Estado
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-              Préstamos Actuales
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
               Préstamos Totales
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
@@ -122,7 +119,7 @@ const EquipmentTable = ({ isLoading, equipment }: EquipmentTableProps) => {
           {isLoading ? (
             <tr>
               <td
-                colSpan={6}
+                colSpan={5}
                 className="px-6 py-4 text-center whitespace-nowrap text-gray-500 dark:text-gray-400"
               >
                 <div className="flex justify-center">
@@ -134,7 +131,7 @@ const EquipmentTable = ({ isLoading, equipment }: EquipmentTableProps) => {
           ) : equipment.length === 0 ? (
             <tr>
               <td
-                colSpan={6}
+                colSpan={5}
                 className="px-6 py-10 text-center whitespace-nowrap text-gray-500 dark:text-gray-400"
               >
                 No hay equipamiento disponible.
@@ -171,18 +168,6 @@ const EquipmentTable = ({ isLoading, equipment }: EquipmentTableProps) => {
                   >
                     {statusDisplayNames[item.status]}
                   </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900 dark:text-gray-100">
-                    {item.currentLoans > 0 ? (
-                      <span className="font-medium">{item.currentLoans}</span>
-                    ) : (
-                      <span className="text-gray-500 dark:text-gray-400">
-                        0
-                      </span>
-                    )}
-                    {item.currentLoans === 1 ? ' préstamo' : ' préstamos'}{' '}
-                  </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm text-gray-900 dark:text-gray-100">
