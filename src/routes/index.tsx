@@ -25,14 +25,13 @@ const Equipment = lazy(() => import('../pages/equipment/Equipment'));
 // const Admin = lazy(() => import("../pages/Admin"));
 // Cuando crees las páginas Trainers y Admin, agrégalas aquí:
 
-// Componente para rutas protegidas por autenticación
-const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
+// Option 1: Export the components if they're intended to be used elsewhere
+export const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   const { isAuthenticated } = useAuthStore();
   return isAuthenticated ? children : <Navigate to="/login" />;
 };
 
-// DefaultRedirect para manejar redirección inteligente
-const DefaultRedirect = () => {
+export const DefaultRedirect = () => {
   const { isAuthenticated, user } = useAuthStore();
 
   if (!isAuthenticated) {
