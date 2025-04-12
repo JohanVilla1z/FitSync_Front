@@ -5,6 +5,7 @@ import { toast } from 'react-toastify';
 import { Button, Card, CardContent, Input } from '../../components/ui';
 import RegisterForm from '../../constants/auth/registerForm';
 import { registerUser } from '../../services/authService';
+import fitsyncLogo from '../../assets/logos/fitsync-logo.png';
 
 interface ExtendedRegisterForm extends RegisterForm {
   confirmPassword: string; // Campo adicional para confirmar la contraseña
@@ -40,7 +41,7 @@ const Register = () => {
         <CardContent>
           <div className="flex flex-col items-center mb-6">
             <img
-              src="src/assets/logos/fitsync-logo.png"
+              src={fitsyncLogo}
               alt="FitSync Logo"
               className="h-16 mb-4"
             />

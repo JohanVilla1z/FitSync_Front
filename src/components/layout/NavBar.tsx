@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 import { Role } from '../../constants';
 import { useAuthStore, useThemeStore } from '../../store';
 import { getAvatarByRole, getHomePageByRole } from '../../utils';
+import fitsyncLogo from '../../assets/logos/fitsync-logo.png';
 
 const NavBar = () => {
   const { user, logout } = useAuthStore();
@@ -22,7 +23,7 @@ const NavBar = () => {
         className="flex items-center align-middle gap-2 text-xl font-bold text-primary"
       >
         <img
-          src={'src/assets/logos/fitsync-logo.png'}
+          src={fitsyncLogo}
           alt="FitSync"
           className="h-8"
         />

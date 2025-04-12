@@ -1,12 +1,15 @@
 import { Role } from '../constants';
+import adminAvatar from '../assets/avatars/ADMIN-avatar.png';
+import trainerAvatar from '../assets/avatars/TRAINER-avatar.png';
+import userAvatar from '../assets/avatars/USER-avatar.png';
 
 export const getAvatarByRole = (role: Role | string | null | undefined) => {
   switch (role) {
     case Role.ADMIN:
-      return 'src/assets/avatars/ADMIN-avatar.png';
+      return adminAvatar;
     case Role.TRAINER:
-      return 'src/assets/avatars/Trainer-avatar.png';
+      return trainerAvatar;
     default:
-      return 'src/assets/avatars/USER-avatar.png';
+      return userAvatar;
   }
 };

@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import axiosInstance from "../../api/axiosInstance";
 import { Button, Card, CardContent, Input } from "../../components/ui";
 import { useAuthStore } from "../../store/authStore";
+import fitsyncLogo from "../../assets/logos/fitsync-logo.png";
 
 interface LoginForm {
   email: string;
@@ -56,7 +57,7 @@ const Login = () => {
         <CardContent>
           <div className="flex flex-col items-center mb-6">
             <img
-              src="src/assets/logos/fitsync-logo.png"
+              src={fitsyncLogo}
               alt="FitSync Logo"
               className="h-16 mb-4"
             />
