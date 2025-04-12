@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from 'react-router-dom';
 
 const NotFound = () => {
   return (
@@ -8,7 +8,7 @@ const NotFound = () => {
         Lo sentimos, la página que buscas no existe.
       </p>
       <Link
-        to="/"
+        to="/login"
         className="px-6 py-3 bg-primary text-white rounded-lg shadow-md hover:bg-primary/90 dark:bg-primary-dark dark:hover:bg-primary/80"
       >
         Volver al Inicio
