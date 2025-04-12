@@ -1,13 +1,13 @@
-import axios from "axios";
-import { useAuthStore } from "../store/authStore";
+import axios from 'axios';
+import { useAuthStore } from '../store/authStore';
 
 // Usar variable de entorno con fallback a localhost para desarrollo
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080/api";
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
 
 const axiosInstance = axios.create({
   baseURL: API_URL,
   headers: {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
   },
 });
 
