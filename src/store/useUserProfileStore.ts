@@ -131,7 +131,7 @@ const processProfileData = (data: any): UserProfile => {
       profile.usersList = data.users.map(processTrainerUser);
 
       // Extraemos IDs para facilitar búsquedas
-      profile.userIds = data.users.map((user) => user.id);
+      profile.userIds = data.users.map((user: UserBackendData) => user.id);
     }
   } else if (data.adminSince !== undefined) {
     // Es un administrador
