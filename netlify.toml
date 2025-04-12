@@ -1,5 +1,4 @@
 [build]
-  base = "FitSync_Front/"
   publish = "dist/"
   command = "npm run build"
 
