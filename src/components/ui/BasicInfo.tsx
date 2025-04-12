@@ -1,37 +1,46 @@
-import { User } from '../../constants';
+import { UserProfile } from '../../store/useUserProfileStore';
 
 interface BasicInfoProps {
-  profile: User;
+  profile: UserProfile;
 }
 
-const BasicInfo = ({ profile }: BasicInfoProps) => (
-  <section aria-labelledby="basic-info-header" className="mb-6">
-    <h2
-      id="basic-info-header"
-      className="text-2xl font-semibold text-foreground dark:text-foreground-dark mb-4"
-    >
-      Información Básica
-    </h2>
-    <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <InfoItem label="Teléfono" value={profile.phone} />
-      <InfoItem
-        label="Altura"
-        value={profile.height}
-        formatter={(val) => `${val} m`}
-      />
-      <InfoItem
-        label="Peso"
-        value={profile.weight}
-        formatter={(val) => `${val} kg`}
-      />
-      <InfoItem
-        label="IMC Actual"
-        value={profile.currentIMC}
-        formatter={(val) => val.toFixed(2)}
-      />
-    </ul>
-  </section>
-);
+const BasicInfo = ({ profile }: BasicInfoProps) => {
+  const fullName = profile.lastName
+    ? `${profile.name} ${profile.lastName}`
+    : profile.name;
+
+  return (
+    <section aria-labelledby="basic-info-header" className="mb-6">
+      <h2
+        id="basic-info-header"
+        className="text-2xl font-semibold text-foreground dark:text-foreground-dark mb-4"
+      >
+        Información Básica
+      </h2>
+      <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
+        {fullName}
+      </h2>
+      <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <InfoItem label="Teléfono" value={profile.phone ?? 'N/>A'} />
+        <InfoItem
+          label="Altura"
+          value={profile.height ?? null}
+          formatter={(val) => `${val} m`}
+        />
+        <InfoItem
+          label="Peso"
+          value={profile.weight ?? null}
+          formatter={(val) => `${val} kg`}
+        />
+        <InfoItem
+          label="IMC Actual"
+          value={profile.currentIMC ?? null}
+          formatter={(val) => val.toFixed(2)}
+        />
+      </ul>
+    </section>
+  );
+};
 
 interface InfoItemProps {
   label: string;

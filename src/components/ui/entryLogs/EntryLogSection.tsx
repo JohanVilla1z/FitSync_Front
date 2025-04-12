@@ -1,4 +1,4 @@
-import { EntryLog } from '../../constants';
+import { EntryLog } from '../../../constants';
 import EntryLogTable from './EntryLogTable';
 
 interface EntryLogSectionProps {

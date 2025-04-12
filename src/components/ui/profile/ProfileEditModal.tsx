@@ -18,7 +18,6 @@ import { UserProfile } from '../../../store/useUserProfileStore';
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '../../ui/dialog';
@@ -48,8 +47,6 @@ const ProfileEditModal = ({
     togglePasswordVisibility,
     password,
     loadInitialData,
-    isAdmin,
-    isTrainer,
     isUser,
   } = useProfileForm({ profile, userRole, onClose });
 

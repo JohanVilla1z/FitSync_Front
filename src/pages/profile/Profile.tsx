@@ -119,7 +119,9 @@ const Profile = () => {
         <TrainerProfileContent profile={userProfileData} userRole={userRole} />
       );
     } else if (isAdmin) {
-      return <AdminProfileContent profile={userProfileData} />;
+      return (
+        <AdminProfileContent profile={userProfileData} userRole={userRole} />
+      );
     }
     return null;
   };

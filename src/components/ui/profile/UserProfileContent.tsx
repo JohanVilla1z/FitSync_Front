@@ -2,9 +2,9 @@ import { DoorOpen } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { Role } from '../../../constants';
-import { User } from '../../../constants/User';
 import { EntryLog } from '../../../constants/entryLog';
 import { useEntryLogs } from '../../../hooks/useEntryLogs';
+import { UserProfile } from '../../../store/useUserProfileStore';
 import { getImcDiagnose } from '../../../utils';
 import BasicInfo from '../BasicInfo';
 import ConfirmationModal from '../ConfirmationModal';
@@ -14,7 +14,7 @@ import EntryLogSection from '../entryLogs/EntryLogSection';
 import IMCDiagnosis from './IMCDiagnosis';
 
 interface UserProfileContentProps {
-  profile: User;
+  profile: UserProfile;
   userRole: string;
 }
 
