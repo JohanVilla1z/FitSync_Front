@@ -2,10 +2,10 @@ import { Lock, Mail, Ruler, User, Weight } from 'lucide-react'; // Importar íco
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import fitsyncLogo from '../../assets/logos/fitsync-logo.png';
 import { Button, Card, CardContent, Input } from '../../components/ui';
 import RegisterForm from '../../constants/auth/registerForm';
 import { registerUser } from '../../services/authService';
-import fitsyncLogo from '../../assets/logos/fitsync-logo.png';
 
 interface ExtendedRegisterForm extends RegisterForm {
   confirmPassword: string; // Campo adicional para confirmar la contraseña
@@ -40,11 +40,7 @@ const Register = () => {
       <Card className="w-96 p-6">
         <CardContent>
           <div className="flex flex-col items-center mb-6">
-            <img
-              src={fitsyncLogo}
-              alt="FitSync Logo"
-              className="h-16 mb-4"
-            />
+            <img src={fitsyncLogo} alt="FitSync Logo" className="h-16 mb-4" />
             <h2 className="text-2xl font-bold text-center">Registro</h2>
           </div>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">

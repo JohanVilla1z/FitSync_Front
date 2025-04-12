@@ -1,10 +1,10 @@
 import { LogOut, Moon, Sun } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import fitsyncLogo from '../../assets/logos/fitsync-logo.png';
 import { Role } from '../../constants';
 import { useAuthStore, useThemeStore } from '../../store';
 import { getAvatarByRole, getHomePageByRole } from '../../utils';
-import fitsyncLogo from '../../assets/logos/fitsync-logo.png';
 
 const NavBar = () => {
   const { user, logout } = useAuthStore();
@@ -22,11 +22,7 @@ const NavBar = () => {
         to={getHomePageByRole(user?.role ?? Role.USER)}
         className="flex items-center align-middle gap-2 text-xl font-bold text-primary"
       >
-        <img
-          src={fitsyncLogo}
-          alt="FitSync"
-          className="h-8"
-        />
+        <img src={fitsyncLogo} alt="FitSync" className="h-8" />
         <p className="text-white">FitSync</p>
       </Link>
 
