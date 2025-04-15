@@ -1,5 +1,6 @@
 export * from './auth/authState';
 export * from './auth/authUser';
+export * from './auth/loginForm';
 export * from './auth/registerForm';
 export * from './entryLog';
 export * from './equipment';
