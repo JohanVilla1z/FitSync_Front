@@ -12,4 +12,5 @@ export interface Equipment {
   description: string;
   status: EquipmentStatus;
   loanCount: number;
+  currentLoans?: number; // <-- opcional, coincide con el backend
 }
