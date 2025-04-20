@@ -9,5 +9,5 @@ export interface LoginResponse {
   token: string;
   type: string;
   email: string;
-  Role: Role;
+  role: Role; // Cambiado de 'Role' a 'role'
 }
