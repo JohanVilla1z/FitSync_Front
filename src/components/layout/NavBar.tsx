@@ -16,11 +16,11 @@ const NavBar = () => {
   };
 
   return (
-    <nav className="fixed top-0 left-14 right-0 z-10 flex items-center justify-between p-4 bg-background shadow-md bg-background-dark text-white">
+    <nav className="fixed top-0 left-0 right-0 z-10 flex items-center justify-between p-4 bg-background shadow-md bg-background-dark text-white">
       {/* Logo - Redirige según el rol */}
       <Link
         to={getHomePageByRole(user?.role ?? Role.USER)}
-        className="flex items-center align-middle gap-2 text-xl font-bold text-primary"
+        className="flex items-center align-middle pl-14 gap-2 text-xl font-bold text-primary"
       >
         <img src={fitsyncLogo} alt="FitSync" className="h-8" />
         <p className="text-white">FitSync</p>

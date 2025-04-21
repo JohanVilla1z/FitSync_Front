@@ -31,7 +31,7 @@ const Sidebar = () => {
   return (
     <aside
       className={cn(
-        'fixed top-0 left-0 min-h-screen bg-gray-900 text-white transition-width duration-300',
+        'fixed top-0 left-0 z-20 min-h-screen bg-gray-900 text-white transition-width duration-300',
         'dark:bg-background-dark dark:text-gray-200 ', // Clases para tema oscuro
         isCollapsed ? 'w-14' : 'w-64'
       )}
