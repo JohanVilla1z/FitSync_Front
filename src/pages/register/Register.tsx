@@ -4,11 +4,10 @@ import { useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import axiosInstance from '../../api/axiosInstance';
 import fitsyncLogo from '../../assets/logos/fitsync-logo.png';
 import { Button, Card, CardContent, Input } from '../../components/ui';
-import RegisterForm from '../../constants/auth/registerForm'; // Asegúrate que la ruta sea correcta
-
+import RegisterForm from '../../constants/auth/registerForm';
+import { registerUser } from '../../services/authService';
 interface ExtendedRegisterForm extends RegisterForm {
   confirmPassword: string;
 }
@@ -35,11 +34,11 @@ const Register = () => {
       ...registerData,
       userHeight: parseFloat(registerData.userHeight as any),
       userWeight: parseFloat(registerData.userWeight as any),
-      phone: registerData.phone || null,
+      phone: registerData.phone ? registerData.phone : undefined,
     };
 
     try {
-      await axiosInstance.post('/auth/register', payload);
+      await registerUser(payload);
       toast.success('Registro exitoso 🚀 ¡Ahora puedes iniciar sesión!');
       navigate('/login');
     } catch (error) {
