@@ -1,0 +1,9 @@
+[build]
+  publish = "dist/"
+  command = "npm run build"
+
+# Configuración para SPA - redirige todas las rutas desconocidas a index.html
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

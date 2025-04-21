@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Windows
+Thumbs.db
+desktop.ini
+
+# Temp files
+*.tmp
