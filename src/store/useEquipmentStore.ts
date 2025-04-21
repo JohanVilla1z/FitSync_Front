@@ -40,9 +40,13 @@ interface EquipmentState {
 
 function calculateStats(equipment: Equipment[]) {
   const total = equipment.length;
-  const available = equipment.filter((item) => item.status === 'AVAILABLE').length;
+  const available = equipment.filter(
+    (item) => item.status === 'AVAILABLE'
+  ).length;
   const onLoan = equipment.filter((item) => item.status === 'LOANED').length;
-  const unavailable = equipment.filter((item) => item.status === 'UNAVAILABLE').length;
+  const unavailable = equipment.filter(
+    (item) => item.status === 'UNAVAILABLE'
+  ).length;
   return { total, available, onLoan, unavailable };
 }
 
