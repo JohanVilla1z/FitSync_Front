@@ -6,7 +6,7 @@ import { Modal } from '../Modal';
 
 const LoanList = () => {
   const { loans, isLoading, fetchAllLoans, completeLoan } = useLoanStore();
-  const { fetchEquipment, fetchEquipmentStats } = useEquipmentStore();
+  const { fetchEquipment } = useEquipmentStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [confirmModal, setConfirmModal] = useState({
     isOpen: false,
@@ -18,11 +18,7 @@ const LoanList = () => {
   useEffect(() => {
     const loadInitialData = async () => {
       try {
-        await Promise.all([
-          fetchAllLoans(),
-          fetchEquipment(),
-          fetchEquipmentStats(),
-        ]);
+        await Promise.all([fetchAllLoans(), fetchEquipment()]);
       } catch (error) {
         console.error('Error loading initial data:', error);
         toast.error('Error al cargar datos iniciales');
@@ -30,7 +26,7 @@ const LoanList = () => {
     };
 
     loadInitialData();
-  }, [fetchAllLoans, fetchEquipment, fetchEquipmentStats]);
+  }, [fetchAllLoans, fetchEquipment]);
 
   const openConfirmModal = (loanId: number, equipmentName: string) => {
     setConfirmModal({
@@ -56,7 +52,7 @@ const LoanList = () => {
       await completeLoan(confirmModal.loanId);
 
       // Actualizar ambos stores después de completar un préstamo
-      await Promise.all([fetchEquipment(), fetchEquipmentStats()]);
+      await Promise.all([fetchEquipment()]);
 
       toast.success(
         `Préstamo de ${confirmModal.equipmentName} marcado como devuelto`
