@@ -7,6 +7,9 @@ interface EntryLogTableProps {
 }
 
 const EntryLogTable = ({ isLoading, entryLogs }: EntryLogTableProps) => {
+  // Ensure entryLogs is always an array
+  const safeEntryLogs = Array.isArray(entryLogs) ? entryLogs : [];
+
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
@@ -39,7 +42,7 @@ const EntryLogTable = ({ isLoading, entryLogs }: EntryLogTableProps) => {
                 <div className="mt-2">Cargando registros...</div>
               </td>
             </tr>
-          ) : entryLogs.length === 0 ? (
+          ) : safeEntryLogs.length === 0 ? (
             <tr>
               <td
                 colSpan={4}
@@ -49,7 +52,7 @@ const EntryLogTable = ({ isLoading, entryLogs }: EntryLogTableProps) => {
               </td>
             </tr>
           ) : (
-            entryLogs.map((log) => (
+            safeEntryLogs.map((log) => (
               <tr
                 key={log.logId}
                 className="hover:bg-gray-50 dark:hover:bg-gray-800"
