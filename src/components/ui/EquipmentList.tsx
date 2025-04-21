@@ -1,4 +1,11 @@
-import { Filter, Plus, RefreshCw, Search } from 'lucide-react';
+import {
+  ChevronLeft,
+  ChevronRight,
+  Filter,
+  Plus,
+  RefreshCw,
+  Search,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { EquipmentStatus, statusDisplayNames } from '../../constants/equipment';
 import { useEquipmentStore } from '../../store/useEquipmentStore';
@@ -13,19 +20,25 @@ const EquipmentList = () => {
   const [statusFilter, setStatusFilter] = useState<EquipmentStatus | 'todos'>(
     'todos'
   );
-  const { equipment, isLoading, fetchEquipment, fetchEquipmentStats } =
-    useEquipmentStore();
+  const {
+    equipment,
+    isLoading,
+    fetchEquipment,
+    page,
+    size,
+    totalPages,
+    setPage,
+    setSize,
+  } = useEquipmentStore();
 
-  // Efecto inicial para cargar los datos
   useEffect(() => {
-    loadEquipmentData();
-  }, []);
+    loadEquipmentData(page, size);
+  }, [page, size]);
 
-  // Función para actualizar datos de equipamiento
-  const loadEquipmentData = async () => {
+  const loadEquipmentData = async (pageToLoad = page, sizeToLoad = size) => {
     setIsRefreshing(true);
     try {
-      await Promise.all([fetchEquipment(), fetchEquipmentStats()]);
+      await Promise.all([fetchEquipment(pageToLoad, sizeToLoad)]);
     } catch (error) {
       console.error('Error al cargar equipamiento:', error);
     } finally {
@@ -34,6 +47,7 @@ const EquipmentList = () => {
   };
 
   const filteredEquipment = equipment.filter((item) => {
+    // ADVERTENCIA: Esto solo filtra la página actual, no todos los equipos.
     const matchesSearch =
       item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (item.description &&
@@ -45,6 +59,14 @@ const EquipmentList = () => {
     return matchesSearch && matchesStatus;
   });
 
+  const handlePrevPage = () => {
+    if (page > 0) setPage(page - 1);
+  };
+
+  const handleNextPage = () => {
+    if (page < totalPages - 1) setPage(page + 1);
+  };
+
   return (
     <div>
       <section className="mb-6">
@@ -52,7 +74,7 @@ const EquipmentList = () => {
           <div className="flex items-center gap-3">
             <h2 className="text-2xl font-semibold">Lista de Equipos</h2>
             <button
-              onClick={loadEquipmentData}
+              onClick={() => loadEquipmentData()}
               disabled={isRefreshing || isLoading}
               className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300"
               aria-label="Refrescar lista"
@@ -124,15 +146,54 @@ const EquipmentList = () => {
       <EquipmentTable
         isLoading={isLoading || isRefreshing}
         equipment={filteredEquipment}
-        onRefresh={loadEquipmentData}
+        onRefresh={() => loadEquipmentData(page, size)}
       />
+
+      {/* ADVERTENCIA para el usuario */}
+      {(searchQuery || statusFilter !== 'todos') && (
+        <div className="text-xs text-amber-600 mt-2">
+          * La búsqueda y el filtrado solo aplican sobre la página actual.
+        </div>
+      )}
+
+      {/* Paginación */}
+      <div className="flex justify-end items-center gap-2 mt-4">
+        <button
+          onClick={handlePrevPage}
+          disabled={page === 0}
+          className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50"
+        >
+          <ChevronLeft size={20} />
+        </button>
+        <span className="text-sm">
+          Página {page + 1} de {totalPages}
+        </span>
+        <button
+          onClick={handleNextPage}
+          disabled={page >= totalPages - 1}
+          className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50"
+        >
+          <ChevronRight size={20} />
+        </button>
+        <select
+          value={size}
+          onChange={(e) => setSize(Number(e.target.value))}
+          className="ml-2 border rounded px-2 py-1 text-sm dark:bg-gray-800 dark:border-gray-600"
+        >
+          {[5, 10, 20, 50].map((s) => (
+            <option key={s} value={s}>
+              {s} por página
+            </option>
+          ))}
+        </select>
+      </div>
 
       {isModalOpen && (
         <EquipmentModal
           isOpen={isModalOpen}
           onClose={() => {
             setIsModalOpen(false);
-            loadEquipmentData(); // Actualizar después de cerrar el modal
+            loadEquipmentData(0, size);
           }}
         />
       )}
