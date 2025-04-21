@@ -19,7 +19,6 @@ const LoanModal = ({ isOpen, onClose }: LoanModalProps) => {
   const {
     equipment = [],
     fetchEquipment,
-    fetchEquipmentStats,
     isLoading: isLoadingEquipment,
   } = useEquipmentStore();
 
@@ -36,7 +35,7 @@ const LoanModal = ({ isOpen, onClose }: LoanModalProps) => {
 
       try {
         // Aseguramos que los datos de equipos estén actualizados
-        await Promise.all([fetchEquipment(), fetchEquipmentStats()]);
+        await fetchEquipment();
 
         setIsLoadingUsers(true);
         const fetchedUsers = await getAllUsers();
@@ -51,7 +50,7 @@ const LoanModal = ({ isOpen, onClose }: LoanModalProps) => {
     }
 
     loadData();
-  }, [isOpen, fetchEquipment, fetchEquipmentStats]);
+  }, [isOpen, fetchEquipment]);
 
   useEffect(() => {
     const availableItems = equipment.filter(

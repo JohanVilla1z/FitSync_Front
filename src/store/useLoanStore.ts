@@ -87,11 +87,6 @@ export const useLoanStore = create<LoanState>((set, get) => ({
           console.error('Error updating equipment:', error);
         })
       );
-      promises.push(
-        equipmentStore.fetchEquipmentStats().catch((error) => {
-          console.error('Error updating equipment stats:', error);
-        })
-      );
     } catch (error) {
       console.error('Error accessing equipment store:', error);
     }
