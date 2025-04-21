@@ -11,16 +11,11 @@ import { useEquipmentStore } from '../../store/useEquipmentStore';
 const Equipment = () => {
   const [isEquipmentModalOpen, setIsEquipmentModalOpen] = useState(false);
   const [isLoanModalOpen, setIsLoanModalOpen] = useState(false);
-  const { fetchEquipment, fetchEquipmentStats, equipmentStats, isLoading } =
-    useEquipmentStore();
+  const { fetchEquipment, equipmentStats, isLoading } = useEquipmentStore();
 
   useEffect(() => {
-    const updateData = async () => {
-      await fetchEquipment();
-      await fetchEquipmentStats();
-    };
-    updateData();
-  }, [fetchEquipment, fetchEquipmentStats]);
+    fetchEquipment();
+  }, [fetchEquipment]);
 
   const statsCards: StatItem[] = [
     {
@@ -47,15 +42,12 @@ const Equipment = () => {
 
   const handleOpenLoanModal = () => {
     fetchEquipment().then(() => {
-      fetchEquipmentStats().then(() => {
-        const availableCount = equipmentStats?.available || 0;
-
-        if (availableCount === 0) {
-          toast.info('No hay equipos disponibles para préstamo');
-        } else {
-          setIsLoanModalOpen(true);
-        }
-      });
+      const availableCount = equipmentStats?.available || 0;
+      if (availableCount === 0) {
+        toast.info('No hay equipos disponibles para préstamo');
+      } else {
+        setIsLoanModalOpen(true);
+      }
     });
   };
 
