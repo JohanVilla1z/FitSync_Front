@@ -3,6 +3,5 @@ export interface EntryLog {
   timestamp: string;
   userName: string;
   userLastName: string;
-  borrowedEquipment: string[];
   editable: boolean;
 }
