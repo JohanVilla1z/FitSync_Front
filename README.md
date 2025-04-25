@@ -6,6 +6,7 @@
 [![Vite](https://img.shields.io/badge/Vite-5.x-purple?logo=vite)](https://vitejs.dev/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.x-blue?logo=tailwindcss)](https://tailwindcss.com/)
 [![Zustand](https://img.shields.io/badge/Zustand-4.x-orange)](https://github.com/pmndrs/zustand)
+[![Netlify Status](https://api.netlify.com/api/v1/badges/290c54d1-f1d2-4e1e-8d37-53d2243f03c8/deploy-status)](https://app.netlify.com/sites/fitsyncapp/deploys)
 
 **FitSync** es una aplicación web moderna diseñada para la gestión integral de gimnasios y el seguimiento del progreso fitness de los usuarios. Construida con tecnologías de vanguardia como React, TypeScript y Vite, ofrece una experiencia de usuario fluida y eficiente.
 
@@ -173,6 +174,19 @@ axiosInstance.interceptors.response.use(
 
 export default axiosInstance;
 ```
+
+## Despliegue
+
+Esta aplicación está desplegada en Netlify y se actualiza automáticamente desde el repositorio de GitHub.
+
+- **URL de Producción:** [https://fitsyncapp.netlify.app/](https://fitsyncapp.netlify.app/)
+- **Estado del Despliegue:** [![Netlify Status](https://api.netlify.com/api/v1/badges/290c54d1-f1d2-4e1e-8d37-53d2243f03c8/deploy-status)](https://app.netlify.com/sites/fitsyncapp/deploys)
+
+**Configuración de Build en Netlify:**
+
+- **Comando de Build:** `npm run build` (o `yarn build`, `pnpm build`)
+- **Directorio de Publicación:** `dist/`
+- **Variables de Entorno:** Asegúrate de configurar `VITE_API_URL` y cualquier otra variable necesaria en la configuración del sitio de Netlify.
 
 ## Contribución
 
