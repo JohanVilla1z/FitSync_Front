@@ -86,10 +86,10 @@ const AssignTrainerModal = ({
 
         {user.trainerName && (
           <div className="p-3 mb-4 bg-yellow-100 dark:bg-yellow-900 rounded-md">
-            <p className="text-sm text-yellow-800 dark:text-yellow-200">
+            <p className="text-sm text-yellow-800 dark:text-yellow-200 break-words max-w-full">
               Este usuario ya tiene asignado a:{' '}
-              <strong>{user.trainerName}</strong>. Al asignar un nuevo
-              entrenador, se reemplazará el actual.
+              <strong className="break-words">{user.trainerName}</strong>. Al
+              asignar un nuevo entrenador, se reemplazará el actual.
             </p>
           </div>
         )}
